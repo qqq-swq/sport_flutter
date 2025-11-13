@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
-import 'package:sport_flutter/presentation/bloc/auth_event.dart';
-import 'package:sport_flutter/presentation/bloc/auth_state.dart';
 import 'package:sport_flutter/presentation/pages/home_page.dart';
 import 'package:sport_flutter/presentation/pages/register_page.dart';
 
 class LoginPage extends StatelessWidget {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   LoginPage({super.key});
@@ -21,10 +19,10 @@ class LoginPage extends StatelessWidget {
           if (state is AuthAuthenticated) {
             // Navigate to the home page on successful login
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
-          } else if (state is AuthFailure) {
-            // Show an error message
+          } else if (state is AuthError) {
+            // Show an error message from the corrected state
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Login Failed: ${state.error}')),
+              SnackBar(content: Text('Login Failed: ${state.message}')),
             );
           }
         },
@@ -39,8 +37,9 @@ class LoginPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'Username'),
+                  controller: _emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
                 TextField(
@@ -51,16 +50,24 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
-                    final username = _usernameController.text;
+                    final email = _emailController.text;
                     final password = _passwordController.text;
-                    context.read<AuthBloc>().add(LoginEvent(username: username, password: password));
+                    // Use the correct constructor with positional arguments
+                    context.read<AuthBloc>().add(LoginEvent(email, password));
                   },
                   child: const Text('Login'),
                 ),
                 TextButton(
                   onPressed: () {
-                    // Navigate to the registration page
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => RegisterPage()));
+                    // Navigate to the registration page, providing the existing AuthBloc
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider.value(
+                          value: BlocProvider.of<AuthBloc>(context),
+                          child: RegisterPage(),
+                        ),
+                      ),
+                    );
                   },
                   child: const Text('Don\'t have an account? Register'),
                 )

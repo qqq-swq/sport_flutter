@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sport_flutter/data/cache/video_cache_manager.dart';
 import 'package:sport_flutter/data/datasources/auth_remote_data_source.dart';
 import 'package:sport_flutter/data/datasources/video_remote_data_source.dart';
@@ -15,7 +14,7 @@ import 'package:sport_flutter/domain/usecases/send_verification_code.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/presentation/pages/login_page.dart';
 
-// RouteObserver to watch for navigation events
+// 全局路由观察者
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
@@ -23,21 +22,18 @@ void main() async {
 
   final client = http.Client();
 
-  // Auth Dependencies
-  final sharedPreferences = await SharedPreferences.getInstance();
-  final authRemoteDataSource = AuthRemoteDataSourceImpl(client: client, sharedPreferences: sharedPreferences);
+  // 初始化数据源和仓库
+  final authRemoteDataSource = AuthRemoteDataSourceImpl(client: client);
   final authRepository = AuthRepositoryImpl(remoteDataSource: authRemoteDataSource);
   final loginUseCase = Login(authRepository);
   final registerUseCase = Register(authRepository);
   final sendCodeUseCase = SendVerificationCode(authRepository);
 
-  // Video Dependencies
   final videoRemoteDataSource = VideoRemoteDataSourceImpl(client: client);
   final videoRepository = VideoRepositoryImpl(remoteDataSource: videoRemoteDataSource);
   final getVideosUseCase = GetVideos(videoRepository);
 
-  // Cache Manager Dependency
-  final videoCacheManager = CustomVideoCacheManager();
+  final videoCacheManager = CustomVideoCacheManager().instance;
 
   runApp(
     MyApp(
@@ -45,7 +41,7 @@ void main() async {
       registerUseCase: registerUseCase,
       sendCodeUseCase: sendCodeUseCase,
       getVideosUseCase: getVideosUseCase,
-      videoCacheManager: videoCacheManager.instance,
+      videoCacheManager: videoCacheManager,
     ),
   );
 }
@@ -80,13 +76,13 @@ class MyApp extends StatelessWidget {
           sendCodeUseCase: sendCodeUseCase,
         ),
         child: MaterialApp(
-          title: 'Video App',
+          title: '视频应用',
           theme: ThemeData(
             primarySwatch: Colors.blue,
             brightness: Brightness.dark,
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
-          navigatorObservers: [routeObserver], // Register the observer
+          navigatorObservers: [routeObserver],
           home: LoginPage(),
         ),
       ),

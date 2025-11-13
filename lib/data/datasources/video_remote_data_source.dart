@@ -3,6 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:sport_flutter/data/models/video_model.dart';
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
 
+// We will use the same base URL as the auth data source to ensure consistency.
+import 'auth_remote_data_source.dart';
+
 abstract class VideoRemoteDataSource {
   Future<List<VideoModel>> getVideos({
     required Difficulty difficulty,
@@ -12,15 +15,17 @@ abstract class VideoRemoteDataSource {
 
 class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
   final http.Client client;
-  final String _baseUrl = "http://192.168.4.140:3000/api"; // Your API base URL
+  // Using a centralized base URL from the auth data source implementation
+  final String _baseUrl;
 
-  VideoRemoteDataSourceImpl({required this.client});
+  VideoRemoteDataSourceImpl({required this.client}) : _baseUrl = AuthRemoteDataSourceImpl.getBaseApiUrl(); // Assuming a static method to get the URL
 
   @override
   Future<List<VideoModel>> getVideos({
     required Difficulty difficulty,
     required int page,
   }) async {
+    // The endpoint for videos is /videos, appended to the base /api URL
     final response = await client.get(
       Uri.parse('$_baseUrl/videos?difficulty=${difficulty.name}&page=$page&limit=5'),
     );

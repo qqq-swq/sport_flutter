@@ -9,7 +9,6 @@ import 'package:sport_flutter/presentation/bloc/video_event.dart';
 import 'package:sport_flutter/presentation/bloc/video_state.dart';
 import 'package:sport_flutter/presentation/widgets/video_list_item.dart';
 
-// Convert to StatefulWidget to use RouteAware
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -17,10 +16,10 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-// Add the RouteAware and TickerProviderStateMixin mixins
+// 1. Add the RouteAware and TickerProviderStateMixin mixins
 class _HomePageState extends State<HomePage> with RouteAware, TickerProviderStateMixin {
   late final TabController _tabController;
-  // A list to hold the BLoCs for each tab, ensuring they persist
+  // 2. Create and hold the BLoCs in the state
   final List<VideoBloc> _blocs = [];
 
   @override
@@ -28,7 +27,7 @@ class _HomePageState extends State<HomePage> with RouteAware, TickerProviderStat
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
 
-    // Create BLoCs here, once, and provide them to the tree.
+    // It's safe to get providers here with listen: false
     final getVideosUseCase = RepositoryProvider.of<GetVideos>(context, listen: false);
     final cacheManager = RepositoryProvider.of<CacheManager>(context, listen: false);
     
@@ -40,7 +39,7 @@ class _HomePageState extends State<HomePage> with RouteAware, TickerProviderStat
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Subscribe to route changes to manage player lifecycle
+    // 3. Subscribe the page to route changes
     routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
 
@@ -54,13 +53,14 @@ class _HomePageState extends State<HomePage> with RouteAware, TickerProviderStat
     super.dispose();
   }
 
-  // This method is called when we navigate AWAY from this page.
+  // 4. This is called when we navigate AWAY from this page
   @override
   void didPushNext() {
-    // Get the BLoC for the currently active tab and command it to pause everything.
-    // This ensures resources are released BEFORE the next page builds.
+    // Find the BLoC for the currently active tab
     final activeBloc = _blocs[_tabController.index];
+    // Command it to pause everything, releasing all native resources
     activeBloc.add(const PausePlayback());
+    print("Navigating away from HomePage. Pausing active tab's playback.");
   }
 
   @override
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> with RouteAware, TickerProviderStat
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Provide the persistent BLoC instance to each list
+          // 5. Provide the persistent BLoC instance to each list using BlocProvider.value
           BlocProvider.value(value: _blocs[0], child: const _VideoList(difficulty: Difficulty.Easy)),
           BlocProvider.value(value: _blocs[1], child: const _VideoList(difficulty: Difficulty.Medium)),
           BlocProvider.value(value: _blocs[2], child: const _VideoList(difficulty: Difficulty.Hard)),

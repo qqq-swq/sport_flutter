@@ -1,47 +1,50 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sport_flutter/data/models/user_model.dart';
 
+// Centralized base URL for the entire application
+const String _serverIp = "192.168.4.140"; // YOUR ACTUAL SERVER IP
+const String _serverPort = "3000";
+const String _baseUrl = "http://$_serverIp:$_serverPort";
+
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login(String username, String password);
-  Future<void> register(String username, String password, String email, String code);
+  Future<Map<String, dynamic>> login(String email, String password);
+  Future<void> register(String username, String email, String password, String code);
   Future<void> sendVerificationCode(String email);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
-  final SharedPreferences sharedPreferences;
+  
+  // A static getter to allow other data sources to use the same base URL
+  static String getBaseApiUrl() => "$_baseUrl/api";
 
-  final String _baseUrl = "http://192.168.4.140:3000/api/auth";
-
-  AuthRemoteDataSourceImpl({required this.client, required this.sharedPreferences});
+  AuthRemoteDataSourceImpl({required this.client});
 
   @override
   Future<void> sendVerificationCode(String email) async {
     final response = await client.post(
-      Uri.parse('$_baseUrl/send-code'),
+      Uri.parse('${getBaseApiUrl()}/auth/send-code'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email}),
     );
 
     if (response.statusCode != 200) {
-      // Provide a more specific error message from the backend response
       final errorBody = jsonDecode(response.body);
       throw Exception('Failed to send code: ${errorBody['error'] ?? response.body}');
     }
   }
 
   @override
-  Future<void> register(String username, String password, String email, String code) async {
+  Future<void> register(String username, String email, String password, String code) async {
     final response = await client.post(
-      Uri.parse('$_baseUrl/register'),
+      Uri.parse('${getBaseApiUrl()}/auth/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'username': username,
-        'password': password,
         'email': email,
+        'password': password,
         'code': code,
       }),
     );
@@ -53,18 +56,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> login(String username, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await client.post(
-      Uri.parse('$_baseUrl/login'),
+      Uri.parse('${getBaseApiUrl()}/auth/login'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'password': password}),
+      body: jsonEncode({'username': email, 'password': password}),
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final token = data['token'];
-      await sharedPreferences.setString('authToken', token);
-      return UserModel.fromJson(data['user']);
+      return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
       final errorBody = jsonDecode(response.body);
       throw Exception('Failed to login: ${errorBody['error'] ?? response.body}');
