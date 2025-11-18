@@ -14,6 +14,7 @@ abstract class VideoRemoteDataSource {
   Future<void> favoriteVideo(int videoId);
   Future<void> unfavoriteVideo(int videoId);
   Future<List<VideoModel>> getFavoriteVideos();
+  Future<List<VideoModel>> getRecommendedVideos();
 }
 
 class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
@@ -36,9 +37,14 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
     required Difficulty difficulty,
     required int page,
   }) async {
+    final headers = await _getAuthHeaders();
     final response = await client.get(
       Uri.parse('$_baseUrl/videos?difficulty=${difficulty.name}&page=$page&limit=5'),
+      headers: headers,
     );
+
+    // --- 诊断日志 ---
+    print('GET /videos RAW RESPONSE for ${difficulty.name}: ${response.body}');
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -76,7 +82,6 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
   @override
   Future<List<VideoModel>> getFavoriteVideos() async {
     final headers = await _getAuthHeaders();
-    // Corrected the endpoint to match your backend specification.
     final response = await client.get(
       Uri.parse('$_baseUrl/videos/favorites'),
       headers: headers,
@@ -87,6 +92,20 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
       return videoList.map((json) => VideoModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load favorite videos. Status: ${response.statusCode}, Body: ${response.body}');
+    }
+  }
+
+  @override
+  Future<List<VideoModel>> getRecommendedVideos() async {
+    final response = await client.get(
+      Uri.parse('$_baseUrl/videos/recommended'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> videoList = json.decode(response.body);
+      return videoList.map((json) => VideoModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load recommended videos. Status: ${response.statusCode}, Body: ${response.body}');
     }
   }
 }

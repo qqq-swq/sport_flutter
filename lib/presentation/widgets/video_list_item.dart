@@ -12,13 +12,12 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 class VideoListItem extends StatefulWidget {
   final Video video;
-  // Add the field to accept the full list of videos
   final List<Video> allVideos;
 
   const VideoListItem({
     super.key,
     required this.video,
-    this.allVideos = const [], // Initialize with an empty list for safety
+    this.allVideos = const [],
   });
 
   @override
@@ -30,57 +29,83 @@ class _VideoListItemState extends State<VideoListItem> {
 
   @override
   void dispose() {
-    _controller?.dispose();
+    // Use the safe dispose method
+    _disposePlayer();
     super.dispose();
   }
 
+  // --- Refactored with async/await for robustness ---
   Future<void> _initializeAndPlay() async {
+    // If a controller is already being initialized or playing, do nothing.
     if (_controller != null) {
-      _controller!.play();
       return;
     }
-    final cacheManager = RepositoryProvider.of<CacheManager>(context);
+
+    final cacheManager = RepositoryProvider.of<CacheManager>(context, listen: false);
     final fileInfo = await cacheManager.getFileFromCache(widget.video.videoUrl) ??
         await cacheManager.downloadFile(widget.video.videoUrl);
 
-    if (mounted) {
-      _controller = VideoPlayerController.file(fileInfo.file)
-        ..initialize().then((_) {
-          if (mounted) {
-            setState(() {});
-            _controller!.play();
-            _controller!.setLooping(true);
-          }
-        });
+    if (!mounted) return;
+
+    final controller = VideoPlayerController.file(fileInfo.file);
+    _controller = controller;
+    setState(() {}); // Show the first frame
+
+    try {
+      await controller.initialize();
+
+      // After async init, check if the widget is still mounted and if this controller is still the active one.
+      if (!mounted || _controller != controller) {
+        await controller.dispose(); // Dispose the orphaned controller
+        return;
+      }
+      
+      await controller.setLooping(true);
+      await controller.play();
+      if (mounted) setState(() {});
+
+    } catch (e) {
+      // If initialization fails, clean up the controller.
+      if (_controller == controller) {
+        _controller = null;
+        if(mounted) setState((){});
+      }
+      await controller.dispose();
     }
   }
 
+  // --- Refactored for safe disposal ---
   void _disposePlayer() {
-    if (_controller != null) {
-      _controller!.dispose();
+    final oldController = _controller;
+    if (oldController != null) {
+      // Immediately nullify the controller on the state object to prevent
+      // other methods from trying to use it while it's being disposed.
       _controller = null;
       if (mounted) {
         setState(() {});
       }
+      // Dispose the old controller in the background.
+      oldController.dispose();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // 1. Pause home screen playback to release resources before navigating.
+      onTap: () async {
         context.read<VideoBloc>().add(const PausePlayback());
-
-        // 2. Navigate, now correctly passing the full list of videos.
-        Navigator.of(context).push(
+        final result = await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => VideoDetailPage(
               video: widget.video,
-              recommendedVideos: widget.allVideos, // The crucial part
+              recommendedVideos: widget.allVideos,
             ),
           ),
         );
+
+        if (result is bool && result != widget.video.isFavorited) {
+          context.read<VideoBloc>().add(UpdateFavoriteStatus(widget.video.id, result));
+        }
       },
       child: BlocListener<VideoBloc, VideoState>(
         listener: (context, state) {

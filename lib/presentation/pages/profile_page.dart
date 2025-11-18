@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/domain/entities/user.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
+import 'package:sport_flutter/presentation/bloc/locale_bloc.dart';
 import 'package:sport_flutter/presentation/pages/edit_profile_page.dart';
+import 'package:sport_flutter/presentation/pages/favorites_page.dart';
+import 'package:sport_flutter/presentation/pages/login_page.dart';
 import 'package:sport_flutter/presentation/pages/my_posts_page.dart';
-import 'package:sport_flutter/presentation/pages/favorites_page.dart'; // New
+import 'package:sport_flutter/l10n/app_localizations.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('我的'),
+        title: Text(l10n.myProfile),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -22,23 +26,57 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthUnauthenticated) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => LoginPage()),
+              (route) => false,
+            );
+          }
+        },
         builder: (context, state) {
           if (state is AuthAuthenticated) {
             return ListView(
               children: [
                 _buildUserInfoHeader(context, state.user),
                 const Divider(height: 0),
-                _buildGridActions(context, state.user),
+                _buildActionList(context, state.user, l10n),
                 const Divider(),
-                _buildLogoutButton(context),
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(l10n.appUsageDeclaration),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _showDeclarationDialog(context, l10n),
+                ),
+                const Divider(),
+                _buildLogoutButton(context, l10n),
               ],
             );
-          } else {
-            return const Center(child: CircularProgressIndicator());
           }
+          return const Center(child: CircularProgressIndicator());
         },
       ),
+    );
+  }
+
+  void _showDeclarationDialog(BuildContext context, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.appUsageDeclaration),
+          content: SingleChildScrollView(
+            child: Text(l10n.usageDeclarationContent),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.close),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -67,7 +105,7 @@ class ProfilePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  user.bio ?? '这个人很懒，什么都没有留下。',
+                  user.bio ?? '这个人很懒，什么都没有留下。', // This can also be localized if needed
                   style: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -80,30 +118,34 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildGridActions(BuildContext context, User user) {
-    final List<_GridItem> items = [
-      _GridItem(
+  Widget _buildActionList(BuildContext context, User user, AppLocalizations l10n) {
+    final List<_ActionItem> items = [
+      _ActionItem(
         icon: Icons.article_outlined,
-        title: '我的帖子',
+        title: l10n.myPosts,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => const MyPostsPage(),
           ));
         },
       ),
-      _GridItem(
+      _ActionItem(
         icon: Icons.favorite_border,
-        title: '我的收藏',
+        title: l10n.myFavorites,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => const FavoritesPage(),
           ));
         },
       ),
-      _GridItem(icon: Icons.history, title: '浏览历史', onTap: () {}),
-      _GridItem(
+      _ActionItem(
+        icon: Icons.language,
+        title: l10n.language,
+        onTap: () => _showLanguageDialog(context, l10n),
+      ),
+      _ActionItem(
         icon: Icons.edit_outlined,
-        title: '编辑资料',
+        title: l10n.editProfile,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => EditProfilePage(user: user),
@@ -112,24 +154,41 @@ class ProfilePage extends StatelessWidget {
       ),
     ];
 
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 1.1,
-      ),
-      itemCount: items.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return InkWell(
+    return Column(
+      children: items.map((item) {
+        return ListTile(
+          leading: Icon(item.icon),
+          title: Text(item.title),
+          trailing: const Icon(Icons.chevron_right),
           onTap: item.onTap,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        );
+      }).toList(),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.selectLanguage),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(item.icon, color: Colors.grey.shade300, size: 30),
-              const SizedBox(height: 8),
-              Text(item.title, style: TextStyle(fontSize: 12, color: Colors.grey.shade400)),
+              ListTile(
+                title: const Text('English'),
+                onTap: () {
+                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('en')));
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+              ListTile(
+                title: const Text('中文'),
+                onTap: () {
+                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('zh')));
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
             ],
           ),
         );
@@ -137,12 +196,31 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton(BuildContext context, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: TextButton(
         onPressed: () {
-          // TODO: Implement logout logic
+          showDialog(
+            context: context,
+            builder: (dialogContext) => AlertDialog(
+              title: Text(l10n.logout),
+              content: Text(l10n.logoutConfirmation),
+              actions: [
+                TextButton(
+                  child: Text(l10n.cancel),
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                ),
+                TextButton(
+                  child: Text(l10n.confirmLogout),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    context.read<AuthBloc>().add(LogoutEvent());
+                  },
+                ),
+              ],
+            ),
+          );
         },
         style: TextButton.styleFrom(
           backgroundColor: Colors.red.withOpacity(0.1),
@@ -152,16 +230,16 @@ class ProfilePage extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        child: const Text('退出登录'),
+        child: Text(l10n.logout),
       ),
     );
   }
 }
 
-class _GridItem {
+class _ActionItem {
   final IconData icon;
   final String title;
   final VoidCallback onTap;
 
-  _GridItem({required this.icon, required this.title, required this.onTap});
+  _ActionItem({required this.icon, required this.title, required this.onTap});
 }

@@ -25,6 +25,7 @@ class AuthAuthenticated extends AuthState {
   List<Object?> get props => [user];
 }
 class AuthRegistrationSuccess extends AuthState {}
+class AuthUnauthenticated extends AuthState {}
 
 class AuthError extends AuthState {
   final String message;
@@ -66,6 +67,8 @@ class LoginEvent extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
+class LogoutEvent extends AuthEvent {}
+
 class UpdateProfileEvent extends AuthEvent {
   final String? username;
   final String? avatarUrl;
@@ -95,6 +98,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SendCodeEvent>(_onSendCode);
     on<RegisterEvent>(_onRegister);
     on<LoginEvent>(_onLogin);
+    on<LogoutEvent>(_onLogout);
     on<UpdateProfileEvent>(_onUpdateProfile);
   }
 
@@ -129,6 +133,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       emit(AuthError(e.toString()));
     }
+  }
+
+  void _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_token');
+    emit(AuthUnauthenticated());
   }
 
   void _onUpdateProfile(UpdateProfileEvent event, Emitter<AuthState> emit) async {

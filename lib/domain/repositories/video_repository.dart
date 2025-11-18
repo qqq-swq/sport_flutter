@@ -14,4 +14,5 @@ abstract class VideoRepository {
   Future<void> favoriteVideo(int videoId);
   Future<void> unfavoriteVideo(int videoId);
   Future<List<Video>> getFavoriteVideos();
+  Future<List<Video>> getRecommendedVideos();
 }

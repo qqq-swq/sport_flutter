@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sport_flutter/domain/usecases/create_community_post.dart';
-import 'package:sport_flutter/domain/usecases/get_community_posts.dart';
 import 'package:sport_flutter/presentation/bloc/community_bloc.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/presentation/pages/create_post_page.dart';
 import 'package:sport_flutter/presentation/pages/post_detail_page.dart';
-import 'package:sport_flutter/services/oss_upload_service.dart';
 import 'package:video_player/video_player.dart';
 
-class CommunityPage extends StatelessWidget {
+class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
 
   @override
+  State<CommunityPage> createState() => _CommunityPageState();
+}
+
+class _CommunityPageState extends State<CommunityPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Dispatch an event to fetch posts when the page is first loaded
+    context.read<CommunityBloc>().add(FetchPosts());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => CommunityBloc(
-        getCommunityPosts: RepositoryProvider.of<GetCommunityPosts>(context),
-        createCommunityPost: RepositoryProvider.of<CreateCommunityPost>(context),
-        ossUploadService: RepositoryProvider.of<OssUploadService>(context),
-      )..add(FetchPosts()),
-      child: const _CommunityView(),
-    );
+    return const _CommunityView();
   }
 }
 
@@ -186,7 +188,7 @@ class _PostItemState extends State<_PostItem> {
             if (widget.post.imageUrl != null) Padding(padding: const EdgeInsets.only(top: 12.0), child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.network(widget.post.imageUrl!, height: 150, width: double.infinity, fit: BoxFit.cover))),
             if (widget.post.videoUrl != null) Padding(padding: const EdgeInsets.only(top: 12.0), child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: _buildVideoPlayer())),
             const SizedBox(height: 12),
-            Row(children: [if (widget.post.tags?.isNotEmpty ?? false) Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text(widget.post.tags!.first, style: TextStyle(color: Colors.blue.shade700, fontSize: 10))), const Spacer(), const Icon(Icons.comment_outlined, size: 16, color: Colors.grey), const SizedBox(width: 4), Text(widget.post.commentCount.toString(), style: const TextStyle(color: Colors.grey, fontSize: 12)), const SizedBox(width: 16), const Icon(Icons.thumb_up_outlined, size: 16, color: Colors.grey), const SizedBox(width: 4), Text(widget.post.likeCount.toString(), style: const TextStyle(color: Colors.grey, fontSize: 12))]),
+            Row(children: [if (widget.post.tags?.isNotEmpty ?? false) Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text(widget.post.tags!.first, style: TextStyle(color: Colors.blue.shade700, fontSize: 10)))]),
           ],
         ),
       ),

@@ -5,7 +5,7 @@ abstract class VideoEvent extends Equatable {
   const VideoEvent();
 
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
 }
 
 class FetchVideos extends VideoEvent {
@@ -17,26 +17,27 @@ class FetchVideos extends VideoEvent {
   List<Object> get props => [difficulty];
 }
 
-class UpdateVideoVisibility extends VideoEvent {
-  final int videoId;
-  final double visibilityFraction;
-
-  const UpdateVideoVisibility(this.videoId, this.visibilityFraction);
-
-  @override
-  List<Object> get props => [videoId, visibilityFraction];
-}
-
 class PausePlayback extends VideoEvent {
   const PausePlayback();
 }
 
-// New event for favoriting/unfavoriting a video
-class ToggleFavoriteStatus extends VideoEvent {
+class UpdateVideoVisibility extends VideoEvent {
   final int videoId;
+  final double visibleFraction;
 
-  const ToggleFavoriteStatus(this.videoId);
+  const UpdateVideoVisibility(this.videoId, this.visibleFraction);
 
   @override
-  List<Object> get props => [videoId];
+  List<Object> get props => [videoId, visibleFraction];
+}
+
+// New event to update the favorite status in the BLoC state
+class UpdateFavoriteStatus extends VideoEvent {
+  final int videoId;
+  final bool isFavorited;
+
+  const UpdateFavoriteStatus(this.videoId, this.isFavorited);
+
+  @override
+  List<Object> get props => [videoId, isFavorited];
 }

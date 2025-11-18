@@ -1,0 +1,16 @@
+{
+    "@@locale": "zh",
+    "myProfile": "我的",
+    "myPosts": "我的帖子",
+    "myFavorites": "我的收藏",
+    "language": "语言",
+    "editProfile": "编辑资料",
+    "appUsageDeclaration": "App使用声明",
+    "logout": "退出登录",
+    "close": "关闭",
+    "logoutConfirmation": "您确定要退出登录吗？",
+    "cancel": "取消",
+    "confirmLogout": "确认退出",
+    "selectLanguage": "选择语言",
+    "usageDeclarationContent": "本使用声明旨在明确你使用本 App 时的权利与义务，保护双方合法权益。请你在下载、安装、注册或使用本 App 前，仔细阅读并充分理解本声明全部内容，一旦你开始使用本 App，即视为你已接受本声明的所有条款。若你不同意本声明，请勿使用本 App。"
+}

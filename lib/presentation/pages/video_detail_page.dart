@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +14,8 @@ import 'package:sport_flutter/domain/usecases/favorite_video.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/presentation/bloc/comment_bloc.dart';
 import 'package:sport_flutter/presentation/widgets/comment_widgets.dart';
+import 'package:sport_flutter/presentation/widgets/video_intro_panel.dart';
+import 'package:sport_flutter/presentation/widgets/video_player_widget.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoDetailPage extends StatefulWidget {
@@ -37,14 +38,12 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   late final CommentBloc _commentBloc;
 
   bool _isFullScreen = false;
-  bool _showControls = true;
-  Timer? _hideControlsTimer;
   bool _isLiked = false;
   bool _isDisliked = false;
   bool _isFavorited = false;
-  bool _didFavoriteChange = false;
   bool _viewRecorded = false;
   bool _isInteracting = false;
+  bool _isLoading = true;
 
   final String _apiBaseUrl = AuthRemoteDataSourceImpl.getBaseApiUrl();
 
@@ -54,15 +53,14 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     _currentVideo = widget.video;
     _isFavorited = widget.video.isFavorited;
     _commentBloc = CommentBloc();
-    _fetchInitialStatus();
     _initializePlayer(_currentVideo.videoUrl);
+    _fetchInitialStatus();
   }
 
   @override
   void dispose() {
     _controller.removeListener(_videoListener);
     _controller.dispose();
-    _hideControlsTimer?.cancel();
     _commentBloc.close();
     if (_isFullScreen) {
       _exitFullScreen();
@@ -84,7 +82,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       ..initialize().then((_) {
         if (mounted) setState(() {});
         _controller.play();
-        _startHideTimer();
       })
       ..addListener(_videoListener);
   }
@@ -99,14 +96,16 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       _viewRecorded = false;
       _isLiked = false;
       _isDisliked = false;
+      _isLoading = true;
     });
 
-    await _fetchInitialStatus();
     _initializePlayer(newVideo.videoUrl);
+    await _fetchInitialStatus();
     _commentBloc.add(FetchComments(newVideo.id));
   }
 
   Future<void> _fetchInitialStatus() async {
+    setState(() => _isLoading = true);
     try {
       final headers = await _getAuthHeaders();
       final response = await http.get(
@@ -128,6 +127,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       }
     } catch (_) {
       // Handle error
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -159,7 +160,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     final isCurrentlyFavorited = _isFavorited;
     setState(() {
       _isFavorited = !isCurrentlyFavorited;
-      _didFavoriteChange = true;
     });
 
     try {
@@ -209,15 +209,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     }
   }
 
-  void _startHideTimer() {
-    _hideControlsTimer?.cancel();
-    _hideControlsTimer = Timer(const Duration(seconds: 4), () {
-      if (mounted) setState(() => _showControls = false);
-    });
-  }
-
   void _toggleFullScreen() {
-    _startHideTimer();
     setState(() {
       _isFullScreen = !_isFullScreen;
       if (_isFullScreen) {
@@ -233,15 +225,24 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
   }
+  
+  void _onShare() {
+    // TODO: Implement share functionality
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Conditional layout based on fullscreen mode
     if (_isFullScreen) {
       return Scaffold(
         backgroundColor: Colors.black,
         body: Center(
-          child: _buildVideoPlayer(),
+          child: _controller.value.isInitialized
+              ? VideoPlayerWidget(
+                  controller: _controller,
+                  isFullScreen: _isFullScreen,
+                  onToggleFullScreen: _toggleFullScreen,
+                )
+              : const CircularProgressIndicator(),
         ),
       );
     }
@@ -252,38 +253,24 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (didPop) return;
-          Navigator.of(context).pop(_didFavoriteChange);
+          Navigator.of(context).pop(_isFavorited);
         },
         child: Column(
           children: [
-            _buildVideoPlayer(),
+            _controller.value.isInitialized
+                ? VideoPlayerWidget(
+                    controller: _controller,
+                    isFullScreen: _isFullScreen,
+                    onToggleFullScreen: _toggleFullScreen,
+                  )
+                : AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Container(
+                      color: Colors.black,
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
             Expanded(child: _buildMetaAndCommentsSection()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVideoPlayer() {
-    return GestureDetector(
-      onTap: () {
-        setState(() => _showControls = !_showControls);
-        if (_showControls) _startHideTimer();
-      },
-      child: AspectRatio(
-        aspectRatio: _controller.value.isInitialized ? _controller.value.aspectRatio : 16 / 9,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            if (_controller.value.isInitialized)
-              VideoPlayer(_controller)
-            else
-              const Center(child: CircularProgressIndicator()),
-            AnimatedOpacity(
-              opacity: _showControls ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: _buildControls(context),
-            )
           ],
         ),
       ),
@@ -301,7 +288,21 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildIntroPanel(),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : VideoIntroPanel(
+                          currentVideo: _currentVideo,
+                          recommendedVideos: widget.recommendedVideos,
+                          isLiked: _isLiked,
+                          isDisliked: _isDisliked,
+                          isFavorited: _isFavorited,
+                          isInteracting: _isInteracting,
+                          onChangeVideo: _changeVideo,
+                          onLike: _toggleLike,
+                          onDislike: _toggleDislike,
+                          onFavorite: _toggleFavorite,
+                          onShare: _onShare,
+                        ),
                   CommentSection(videoId: _currentVideo.id),
                 ],
               ),
@@ -310,226 +311,5 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         ),
       ),
     );
-  }
-
-  Widget _buildIntroPanel() {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildAuthorInfo(),
-                const SizedBox(height: 12),
-                Text(_currentVideo.title, style: Theme.of(context).textTheme.headlineSmall),
-                const SizedBox(height: 8),
-                Text(
-                  '${_formatNumber(_currentVideo.viewCount)}次观看 - ${_formatDate(_currentVideo.createdAt)}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                _buildActionButtons(),
-                const Divider(height: 32),
-                const Text('接下来播放', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (c, i) {
-              final v = widget.recommendedVideos[i];
-              if (v.id == _currentVideo.id) return const SizedBox.shrink();
-              return _buildRecommendedItem(c, v);
-            },
-            childCount: widget.recommendedVideos.length,
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildAuthorInfo() {
-      return Row(
-        children: [
-          const CircleAvatar(child: Icon(Icons.person)),
-          const SizedBox(width: 12),
-          Expanded(child: Text(_currentVideo.authorName, style: Theme.of(context).textTheme.titleMedium)),
-          ElevatedButton(onPressed: () {}, child: const Text('+ 关注')),
-        ],
-      );
-  }
-
-  Widget _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildActionButton(
-          icon: _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-          label: _formatNumber(_currentVideo.likeCount),
-          onPressed: _toggleLike,
-        ),
-        _buildActionButton(
-          icon: _isDisliked ? Icons.thumb_down : Icons.thumb_down_outlined,
-          label: '不喜欢',
-          onPressed: _toggleDislike,
-        ),
-        _buildActionButton(
-          icon: _isFavorited ? Icons.star : Icons.star_border,
-          label: '收藏',
-          onPressed: _toggleFavorite,
-        ),
-        _buildActionButton(icon: Icons.share_outlined, label: '分享'),
-      ],
-    );
-  }
-
-  Widget _buildRecommendedItem(BuildContext context, Video video) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: InkWell(
-        onTap: () => _changeVideo(video),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 150,
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: CachedNetworkImage(
-                    imageUrl: video.thumbnailUrl,
-                    fit: BoxFit.cover,
-                    placeholder: (c, u) => const Center(child: CircularProgressIndicator()),
-                    errorWidget: (c, u, e) => const Icon(Icons.error),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    style: Theme.of(context).textTheme.titleSmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    video.authorName,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    VoidCallback? onPressed,
-  }) {
-    return InkWell(
-      onTap: onPressed,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 28,
-            color: _isInteracting ? Colors.grey : Theme.of(context).iconTheme.color,
-          ),
-          const SizedBox(height: 4),
-          Text(label, style: Theme.of(context).textTheme.labelMedium),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildControls(BuildContext context) {
-    return Stack(
-      children: [
-        Center(
-          child: IconButton(
-            icon: Icon(_controller.value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled),
-            onPressed: () {
-              _startHideTimer();
-              if (_controller.value.isPlaying) {
-                _controller.pause();
-              } else {
-                _controller.play();
-              }
-              setState(() {});
-            },
-            color: Colors.white,
-            iconSize: 60,
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            color: Colors.black38,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                VideoProgressIndicator(_controller, allowScrubbing: true),
-                Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    _buildSpeedMenu(),
-                    const Spacer(),
-                    IconButton(
-                      icon: Icon(_isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen),
-                      onPressed: _toggleFullScreen,
-                      color: Colors.white,
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-    Widget _buildSpeedMenu() {
-      return PopupMenuButton<double>(
-        onSelected: (speed) {
-          _startHideTimer();
-          _controller.setPlaybackSpeed(speed);
-        },
-        itemBuilder: (context) => [0.5, 1.0, 1.5, 2.0]
-            .map((speed) => PopupMenuItem(value: speed, child: Text('${speed}x')))
-            .toList(),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            '${_controller.value.playbackSpeed}x',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-      );
-    }
-
-  String _formatNumber(int n) => (n >= 10000) ? '${(n / 10000).toStringAsFixed(1)}万' : n.toString();
-
-  String _formatDate(DateTime d) {
-    final diff = DateTime.now().difference(d);
-    if (diff.inDays > 1) return '${diff.inDays}天前';
-    if (diff.inHours > 1) return '${diff.inHours}小时前';
-    return '刚刚';
   }
 }

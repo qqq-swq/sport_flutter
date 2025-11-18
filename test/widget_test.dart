@@ -6,10 +6,13 @@ import 'package:sport_flutter/domain/entities/user.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/repositories/auth_repository.dart';
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
+import 'package:sport_flutter/domain/usecases/favorite_video.dart';
+import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/domain/usecases/login.dart';
 import 'package:sport_flutter/domain/usecases/register.dart';
 import 'package:sport_flutter/domain/usecases/send_verification_code.dart';
+import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/main.dart';
 
 // --- Mock Implementations for Dependencies ---
@@ -47,6 +50,26 @@ class MockVideoRepository implements VideoRepository {
   @override
   Future<List<Video>> getVideos({required Difficulty difficulty, required int page}) async {
     // Return an empty list for simplicity in this test
+    return [];
+  }
+
+  @override
+  Future<void> favoriteVideo(int videoId) async {
+    return;
+  }
+
+  @override
+  Future<void> unfavoriteVideo(int videoId) async {
+    return;
+  }
+
+  @override
+  Future<List<Video>> getFavoriteVideos() async {
+    return [];
+  }
+
+  @override
+  Future<List<Video>> getRecommendedVideos() async {
     return [];
   }
 }
@@ -103,14 +126,20 @@ void main() {
     final registerUseCase = Register(mockAuthRepository);
     final sendCodeUseCase = SendVerificationCode(mockAuthRepository);
     final getVideosUseCase = GetVideos(mockVideoRepository);
+    final favoriteVideoUseCase = FavoriteVideo(mockVideoRepository);
+    final unfavoriteVideoUseCase = UnfavoriteVideo(mockVideoRepository);
+    final getRecommendedVideosUseCase = GetRecommendedVideos(mockVideoRepository);
 
     // 3. Build our app, providing all required dependencies
     await tester.pumpWidget(MyApp(
       loginUseCase: loginUseCase,
       registerUseCase: registerUseCase,
-      sendCodeUseCase: sendCodeUseCase,      // Added
-      getVideosUseCase: getVideosUseCase,    // Added
-      videoCacheManager: mockCacheManager, // Added
+      sendCodeUseCase: sendCodeUseCase,
+      getVideosUseCase: getVideosUseCase,
+      favoriteVideoUseCase: favoriteVideoUseCase,
+      unfavoriteVideoUseCase: unfavoriteVideoUseCase,
+      getRecommendedVideosUseCase: getRecommendedVideosUseCase, // Provide new use case
+      videoCacheManager: mockCacheManager,
     ));
 
     // 4. Verify the initial page is LoginPage

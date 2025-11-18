@@ -29,4 +29,9 @@ class VideoRepositoryImpl implements VideoRepository {
   Future<List<Video>> getFavoriteVideos() async {
     return await remoteDataSource.getFavoriteVideos();
   }
+
+  @override
+  Future<List<Video>> getRecommendedVideos() async {
+    return await remoteDataSource.getRecommendedVideos();
+  }
 }

@@ -1,16 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
-import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
+import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart';
+import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
-import 'package:sport_flutter/main.dart'; // Import to get the routeObserver
+import 'package:sport_flutter/main.dart'; // For routeObserver
+import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_event.dart';
-import 'package:sport_flutter/presentation/bloc/video_state.dart';
-import 'package:sport_flutter/presentation/widgets/video_list_item.dart';
+import 'package:sport_flutter/presentation/bloc/video_state.dart'; // Added missing import
 import 'package:sport_flutter/presentation/pages/video_detail_page.dart';
+import 'package:sport_flutter/presentation/pages/video_grid_page.dart';
 
 class VideosPage extends StatefulWidget {
   const VideosPage({super.key});
@@ -19,53 +24,55 @@ class VideosPage extends StatefulWidget {
   State<VideosPage> createState() => _VideosPageState();
 }
 
-class _VideosPageState extends State<VideosPage> with RouteAware, TickerProviderStateMixin {
-  late final TabController _tabController;
-  final List<VideoBloc> _blocs = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
+class _VideosPageState extends State<VideosPage> with RouteAware {
+  late final List<VideoBloc> _videoBlocs;
+  late final RecommendedVideoBloc _recommendedVideoBloc;
+  bool _didInit = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_blocs.isEmpty) {
-      final getVideosUseCase = RepositoryProvider.of<GetVideos>(context, listen: false);
-      final favoriteVideoUseCase = RepositoryProvider.of<FavoriteVideo>(context, listen: false);
-      final unfavoriteVideoUseCase = RepositoryProvider.of<UnfavoriteVideo>(context, listen: false);
-      final cacheManager = RepositoryProvider.of<CacheManager>(context, listen: false);
-      
-      for (int i = 0; i < 3; i++) {
-        _blocs.add(VideoBloc(
+    if (!_didInit) {
+      final videoRepository = RepositoryProvider.of<VideoRepository>(context);
+      final getVideosUseCase = GetVideos(videoRepository);
+      final favoriteVideoUseCase = FavoriteVideo(videoRepository);
+      final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
+      final cacheManager = RepositoryProvider.of<CacheManager>(context);
+
+      _videoBlocs = List.generate(3, (i) {
+        final bloc = VideoBloc(
           getVideos: getVideosUseCase,
           favoriteVideo: favoriteVideoUseCase,
           unfavoriteVideo: unfavoriteVideoUseCase,
           cacheManager: cacheManager,
-        ));
-      }
-    }
+        );
+        bloc.add(FetchVideos(Difficulty.values[i]));
+        return bloc;
+      });
 
+      final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
+      _recommendedVideoBloc = RecommendedVideoBloc(getRecommendedVideos: getRecommendedVideosUseCase)
+        ..add(FetchRecommendedVideos());
+
+      _didInit = true;
+    }
     routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
 
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
-    _tabController.dispose();
-    for (final bloc in _blocs) {
+    for (final bloc in _videoBlocs) {
       bloc.close();
     }
+    _recommendedVideoBloc.close();
     super.dispose();
   }
 
   @override
   void didPushNext() {
-    if (_blocs.isNotEmpty) {
-      final activeBloc = _blocs[_tabController.index];
-      activeBloc.add(const PausePlayback());
+    for (final bloc in _videoBlocs) {
+      bloc.add(const PausePlayback());
     }
   }
 
@@ -74,46 +81,152 @@ class _VideosPageState extends State<VideosPage> with RouteAware, TickerProvider
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sport Videos'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: '简单'),
-            Tab(text: '中度'),
-            Tab(text: '困难'),
-          ],
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          BlocProvider.value(value: _blocs[0], child: const _VideoList(difficulty: Difficulty.Easy)),
-          BlocProvider.value(value: _blocs[1], child: const _VideoList(difficulty: Difficulty.Medium)),
-          BlocProvider.value(value: _blocs[2], child: const _VideoList(difficulty: Difficulty.Hard)),
+      body: MultiBlocProvider(
+        providers: [
+          if (_didInit) BlocProvider.value(value: _recommendedVideoBloc),
         ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_didInit) const _VideoCarousel(),
+              const SizedBox(height: 24),
+              if (_didInit)
+                ...[
+                  _VideoSection(title: '简单', difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
+                  _VideoSection(title: '中度', difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
+                  _VideoSection(title: '困难', difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
+                ]
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-class _VideoList extends StatefulWidget {
-  final Difficulty difficulty;
-  const _VideoList({required this.difficulty});
+// --- Carousel Widget ---
+class _VideoCarousel extends StatefulWidget {
+  const _VideoCarousel();
 
   @override
-  State<_VideoList> createState() => _VideoListState();
+  State<_VideoCarousel> createState() => _VideoCarouselState();
 }
 
-class _VideoListState extends State<_VideoList> {
+class _VideoCarouselState extends State<_VideoCarousel> {
+  late final PageController _pageController;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 1000);
+  }
+
+  void _startAutoScroll(int itemCount) {
+    if (itemCount == 0 || (_timer != null && _timer!.isActive)) return;
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!_pageController.hasClients) return;
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RecommendedVideoBloc, RecommendedVideoState>(
+      builder: (context, state) {
+        if (state is RecommendedVideoLoaded) {
+          final recommendedVideos = state.videos;
+          if (recommendedVideos.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          _startAutoScroll(recommendedVideos.length);
+          return SizedBox(
+            height: 200,
+            child: PageView.builder(
+              controller: _pageController,
+              itemBuilder: (context, index) {
+                final video = recommendedVideos[index % recommendedVideos.length];
+                return GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => VideoDetailPage(video: video, recommendedVideos: recommendedVideos),
+                    ),
+                  ),
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(video.thumbnailUrl, fit: BoxFit.cover),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.black.withAlpha((255 * 0.6).round()), Colors.transparent],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 16,
+                          left: 16,
+                          child: Text(
+                            video.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+        return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+      },
+    );
+  }
+}
+
+// --- Horizontal Video Section Widget (Refactored) ---
+class _VideoSection extends StatefulWidget {
+  final String title;
+  final Difficulty difficulty;
+  final VideoBloc bloc;
+
+  const _VideoSection({
+    required this.title,
+    required this.difficulty,
+    required this.bloc,
+  });
+
+  @override
+  _VideoSectionState createState() => _VideoSectionState();
+}
+
+class _VideoSectionState extends State<_VideoSection> {
   final _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<VideoBloc>().add(FetchVideos(widget.difficulty));
-      }
-    });
     _scrollController.addListener(_onScroll);
   }
 
@@ -125,12 +238,12 @@ class _VideoListState extends State<_VideoList> {
   }
 
   void _onScroll() {
-    if (_isBottom) {
-      context.read<VideoBloc>().add(FetchVideos(widget.difficulty));
+    if (_isEnd) {
+      widget.bloc.add(FetchVideos(widget.difficulty));
     }
   }
 
-  bool get _isBottom {
+  bool get _isEnd {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.offset;
@@ -139,47 +252,106 @@ class _VideoListState extends State<_VideoList> {
 
   @override
   Widget build(BuildContext context) {
-    final videoBloc = context.read<VideoBloc>();
-    return BlocBuilder<VideoBloc, VideoState>(
-      builder: (context, state) {
-        if (state is VideoLoaded) {
-          if (state.videos.isEmpty) {
-            return const Center(child: Text('No videos found.'));
-          }
-          return ListView.builder(
-            controller: _scrollController,
-            itemCount: state.hasReachedMax ? state.videos.length : state.videos.length + 1,
-            itemBuilder: (context, index) {
-              if (index >= state.videos.length) {
-                return const Padding(padding: EdgeInsets.all(16.0), child: Center(child: CircularProgressIndicator()));
-              }
-              final video = state.videos[index];
-              return GestureDetector(
-                onTap: () async {
-                  videoBloc.add(const PausePlayback());
-                  final result = await Navigator.of(context).push<bool>(
-                    MaterialPageRoute(
-                      builder: (_) => VideoDetailPage(
-                        video: video,
-                        recommendedVideos: state.videos,
-                      ),
-                    ),
-                  );
-                  // If the favorite status changed, refresh the list.
-                  if (result == true) {
-                    videoBloc.add(FetchVideos(widget.difficulty));
+    return BlocProvider.value(
+      value: widget.bloc,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => VideoGridPage(
+                title: widget.title,
+                difficulty: widget.difficulty,
+              ),
+            )),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.title,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, size: 16),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 180,
+            child: BlocBuilder<VideoBloc, VideoState>(
+              builder: (context, state) {
+                if (state is VideoLoaded) {
+                  if (state.videos.isEmpty) {
+                    return const Center(child: Text('No videos found.'));
                   }
-                },
-                child: VideoListItem(video: video, allVideos: state.videos),
-              );
-            },
-          );
-        }
-        if (state is VideoError) {
-          return Center(child: Text('Failed to fetch videos: ${state.message}'));
-        }
-        return const Center(child: CircularProgressIndicator());
-      },
+                  return ListView.builder(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: state.hasReachedMax ? state.videos.length : state.videos.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index >= state.videos.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return _VideoThumbnailCard(video: state.videos[index], allVideos: state.videos);
+                    },
+                  );
+                }
+                if (state is VideoError) {
+                  return Center(child: Text('Failed to fetch videos: ${state.message}'));
+                }
+                return const Center(child: CircularProgressIndicator());
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- Thumbnail Card for Horizontal List ---
+class _VideoThumbnailCard extends StatelessWidget {
+  final Video video;
+  final List<Video> allVideos;
+
+  const _VideoThumbnailCard({required this.video, required this.allVideos});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => VideoDetailPage(video: video, recommendedVideos: allVideos),
+        ),
+      ),
+      child: SizedBox(
+        width: 150,
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4.0)),
+                  child: Image.network(video.thumbnailUrl, fit: BoxFit.cover, width: double.infinity),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  video.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

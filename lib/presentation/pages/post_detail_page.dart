@@ -2,48 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
-import 'package:sport_flutter/domain/usecases/create_post_comment.dart';
-import 'package:sport_flutter/domain/usecases/delete_community_post.dart';
-import 'package:sport_flutter/domain/usecases/delete_post_comment.dart';
-import 'package:sport_flutter/domain/usecases/dislike_post_comment.dart';
-import 'package:sport_flutter/domain/usecases/get_post_comments.dart';
-import 'package:sport_flutter/domain/usecases/like_post_comment.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_input_field.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_section.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/post_header.dart';
 
-class PostDetailPage extends StatelessWidget {
+// FIX: Changed to StatefulWidget to fetch comments on init
+class PostDetailPage extends StatefulWidget {
   final CommunityPost post;
 
   const PostDetailPage({super.key, required this.post});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PostCommentBloc(
-        getPostComments: RepositoryProvider.of<GetPostComments>(context),
-        createPostComment: RepositoryProvider.of<CreatePostComment>(context),
-        likePostComment: RepositoryProvider.of<LikePostCommentUseCase>(context),
-        dislikePostComment: RepositoryProvider.of<DislikePostCommentUseCase>(context),
-        deletePostComment: RepositoryProvider.of<DeletePostCommentUseCase>(context),
-        deleteCommunityPost: RepositoryProvider.of<DeleteCommunityPost>(context),
-      )..add(FetchPostComments(post.id)),
-      child: _PostDetailView(post: post),
-    );
-  }
+  State<PostDetailPage> createState() => _PostDetailPageState();
 }
 
-class _PostDetailView extends StatefulWidget {
-  final CommunityPost post;
-  const _PostDetailView({required this.post});
+class _PostDetailPageState extends State<PostDetailPage> {
+  PostComment? _replyingTo;
 
   @override
-  State<_PostDetailView> createState() => _PostDetailViewState();
-}
-
-class _PostDetailViewState extends State<_PostDetailView> {
-  PostComment? _replyingTo;
+  void initState() {
+    super.initState();
+    // Fetch comments for the given post when the page loads
+    context.read<PostCommentBloc>().add(FetchPostComments(widget.post.id));
+  }
 
   void _onReplyTapped(PostComment comment) {
     setState(() {
@@ -72,6 +54,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
             TextButton(
               child: const Text('删除', style: TextStyle(color: Colors.red)),
               onPressed: () {
+                // Use the existing context to find the BLoC
                 context.read<PostCommentBloc>().add(DeletePost(widget.post.id));
                 Navigator.of(dialogContext).pop();
               },
@@ -84,12 +67,14 @@ class _PostDetailViewState extends State<_PostDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    // REMOVED the local BlocProvider. The page now relies on the BLoC
+    // provided at the top of the widget tree in main.dart.
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.post.username),
         actions: [
           // TODO: Replace 'wyy' with a real check for post ownership
-          if (widget.post.username == 'wyy') 
+          if (widget.post.username == 'wyy')
             IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: _showDeleteConfirmationDialog,
@@ -102,7 +87,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('帖子已成功删除'), duration: Duration(seconds: 1)),
             );
-            // THE FIX: Pop with a `true` result to signal the previous page to refresh.
+            // Pop with a `true` result to signal the previous page to refresh.
             Navigator.of(context).pop(true);
           } else if (state is PostDeletionFailure) {
             ScaffoldMessenger.of(context).showSnackBar(

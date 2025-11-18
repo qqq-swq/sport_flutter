@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sport_flutter/presentation/pages/community_page.dart';
 import 'package:sport_flutter/presentation/pages/profile_page.dart';
-import 'package:sport_flutter/presentation/pages/videos_page.dart'; // Renamed from old HomePage
+import 'package:sport_flutter/presentation/pages/videos_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,9 +13,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  // The pages that correspond to the navigation bar items
-  static const List<Widget> _widgetOptions = <Widget>[
-    VideosPage(), // The original content of HomePage
+  // By creating the pages here and not marking them as 'const', we ensure
+  // they are instantiated once and get a correct BuildContext.
+  // Using 'late' defers initialization until they are first accessed.
+  late final List<Widget> _widgetOptions = [
+    VideosPage(),
     CommunityPage(),
     ProfilePage(),
   ];
@@ -49,7 +51,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
       ),
     );

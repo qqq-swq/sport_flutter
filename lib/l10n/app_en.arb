@@ -1,0 +1,16 @@
+{
+    "@@locale": "en",
+    "myProfile": "My Profile",
+    "myPosts": "My Posts",
+    "myFavorites": "My Favorites",
+    "language": "Language",
+    "editProfile": "Edit Profile",
+    "appUsageDeclaration": "App Usage Declaration",
+    "logout": "Logout",
+    "close": "Close",
+    "logoutConfirmation": "Are you sure you want to log out?",
+    "cancel": "Cancel",
+    "confirmLogout": "Confirm Logout",
+    "selectLanguage": "Select Language",
+    "usageDeclarationContent": "This usage declaration aims to clarify your rights and obligations when using this App and to protect the legal rights and interests of both parties. Please read and fully understand all the contents of this declaration before downloading, installing, registering, or using this App. Once you start using this App, you are deemed to have accepted all the terms of this declaration. If you do not agree with this declaration, please do not use this App."
+}
