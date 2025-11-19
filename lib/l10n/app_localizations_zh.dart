@@ -76,6 +76,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get favorite => '收藏';
 
   @override
+  String get share => '分享';
+
+  @override
   String get tenThousand => '万';
 
   @override

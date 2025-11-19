@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:video_player/video_player.dart';
+import 'package:iconsax/iconsax.dart';
 
 class PostHeader extends StatefulWidget {
   final CommunityPost post;
@@ -19,7 +20,12 @@ class _PostHeaderState extends State<PostHeader> {
   void initState() {
     super.initState();
     if (widget.post.videoUrl != null && widget.post.videoUrl!.isNotEmpty) {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.post.videoUrl!));
+      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.post.videoUrl!))
+        ..addListener(() {
+          if (mounted) {
+            setState(() {});
+          }
+        });
       _initializeVideoPlayerFuture = _controller!.initialize()..then((_) {
         if (mounted) setState(() {});
       });
@@ -59,7 +65,7 @@ class _PostHeaderState extends State<PostHeader> {
             aspectRatio: _controller!.value.aspectRatio,
             child: GestureDetector(
               onTap: () => setState(() => _controller!.value.isPlaying ? _controller!.pause() : _controller!.play()),
-              child: Stack(alignment: Alignment.center, children: <Widget>[ VideoPlayer(_controller!), if (!_controller!.value.isPlaying) Container(padding: const EdgeInsets.all(8.0), decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle), child: const Icon(Icons.play_arrow, color: Colors.white, size: 60))]),
+              child: Stack(alignment: Alignment.center, children: <Widget>[ VideoPlayer(_controller!), if (!_controller!.value.isPlaying) Container(padding: const EdgeInsets.all(8.0), decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle), child: const Icon(Iconsax.play, color: Colors.white, size: 60))]),
             ),
           );
         } else {
@@ -70,7 +76,7 @@ class _PostHeaderState extends State<PostHeader> {
   }
 
   Widget _buildAuthorInfo(BuildContext context) {
-    return Row(children: [CircleAvatar(radius: 20, backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty ? NetworkImage(widget.post.userAvatarUrl!) : null, child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty ? const Icon(Icons.person) : null), const SizedBox(width: 12), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(widget.post.username, style: Theme.of(context).textTheme.titleMedium), Text(DateFormat('yyyy-MM-dd HH:mm').format(widget.post.createdAt), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey))])]);
+    return Row(children: [CircleAvatar(radius: 20, backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty ? NetworkImage(widget.post.userAvatarUrl!) : null, child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty ? const Icon(Iconsax.profile) : null), const SizedBox(width: 12), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(widget.post.username, style: Theme.of(context).textTheme.titleMedium), Text(DateFormat('yyyy-MM-dd HH:mm').format(widget.post.createdAt), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey))])]);
   }
 
   Widget _buildPostContent(BuildContext context) {

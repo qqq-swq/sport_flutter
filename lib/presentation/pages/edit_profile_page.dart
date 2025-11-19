@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sport_flutter/domain/entities/user.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/services/oss_upload_service.dart';
+import 'package:iconsax/iconsax.dart';
 
 class EditProfilePage extends StatefulWidget {
   final User user;
@@ -18,14 +20,13 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   late final TextEditingController _usernameController;
   late final TextEditingController _bioController;
-  File? _newAvatarFile;
-  bool _isUploading = false;
+  File? _avatarImage;
 
   @override
   void initState() {
     super.initState();
     _usernameController = TextEditingController(text: widget.user.username);
-    _bioController = TextEditingController(text: widget.user.bio ?? '');
+    _bioController = TextEditingController(text: widget.user.bio);
   }
 
   @override
@@ -36,58 +37,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _newAvatarFile = File(pickedFile.path);
+        _avatarImage = File(pickedFile.path);
       });
     }
   }
 
-  void _saveProfile() async {
-    if (_usernameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('用户名不能为空')),
-      );
-      return;
-    }
+  Future<void> _saveProfile() async {
+    final authBloc = context.read<AuthBloc>();
+    String? avatarUrl = widget.user.avatarUrl;
 
-    setState(() {
-      _isUploading = true;
-    });
-
-    // This will be the RELATIVE path if a new avatar is chosen.
-    String? finalAvatarPath = widget.user.avatarUrl;
-
-    if (_newAvatarFile != null) {
+    if (_avatarImage != null) {
       final ossService = context.read<OssUploadService>();
       try {
-        // Upload the file and get the new object key (relative path).
-        finalAvatarPath = await ossService.uploadFile(_newAvatarFile!, uploadPath: 'videos/avatars');
+        final uploadedUrl = await ossService.uploadFile(_avatarImage!, uploadPath: 'videos/avatars');
+        avatarUrl = uploadedUrl;
       } catch (e) {
-        setState(() {
-          _isUploading = false;
-        });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('头像上传失败: $e')),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('头像上传失败: $e')));
         }
-        return;
+        return; // Stop if avatar upload fails
       }
     }
 
-    // Dispatch the RELATIVE path to the BLoC.
+    authBloc.add(UpdateProfileEvent(
+      username: _usernameController.text,
+      bio: _bioController.text,
+      avatarUrl: avatarUrl,
+    ));
+
     if (mounted) {
-      context.read<AuthBloc>().add(
-            UpdateProfileEvent(
-              username: _usernameController.text,
-              bio: _bioController.text,
-              avatarUrl: finalAvatarPath,
-            ),
-          );
+      Navigator.of(context).pop();
     }
   }
 
@@ -98,84 +80,68 @@ class _EditProfilePageState extends State<EditProfilePage> {
         title: const Text('编辑资料'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: const Icon(Iconsax.save_2),
             onPressed: _saveProfile,
           ),
         ],
       ),
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            setState(() {
-              _isUploading = false;
-            });
-            if (ModalRoute.of(context)?.isCurrent ?? false) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('个人资料已更新')),
-              );
-              Navigator.of(context).pop();
-            }
-          } else if (state is AuthError) {
-            setState(() {
-              _isUploading = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('更新失败: ${state.message}')),
-            );
-          }
-        },
-        builder: (context, state) {
-          final isLoading = state is AuthLoading || _isUploading;
-          
-          ImageProvider? backgroundImage;
-          if (_newAvatarFile != null) {
-            backgroundImage = FileImage(_newAvatarFile!); // Local preview is fine.
-          } else if (widget.user.avatarUrl != null && widget.user.avatarUrl!.isNotEmpty) {
-            // Always use avatarUrl directly, as it's a full URL from the backend.
-            backgroundImage = NetworkImage(widget.user.avatarUrl!);
-          }
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildAvatarSection(),
+            const SizedBox(height: 32),
+            _buildTextField(_usernameController, '用户名'),
+            const SizedBox(height: 16),
+            _buildTextField(_bioController, '简介', maxLines: 3),
+          ],
+        ),
+      ),
+    );
+  }
 
-          return Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: backgroundImage,
-                        child: backgroundImage == null
-                            ? const Icon(Icons.person, size: 50)
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    TextFormField(
-                      controller: _usernameController,
-                      decoration: const InputDecoration(
-                        labelText: '用户名',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _bioController,
-                      decoration: const InputDecoration(
-                        labelText: '个人简介',
-                      ),
-                      maxLines: 3,
-                    ),
-                  ],
-                ),
+  Widget _buildAvatarSection() {
+    ImageProvider? backgroundImage;
+    if (_avatarImage != null) {
+      backgroundImage = FileImage(_avatarImage!);
+    } else if (widget.user.avatarUrl != null && widget.user.avatarUrl!.isNotEmpty) {
+      backgroundImage = NetworkImage(widget.user.avatarUrl!);
+    }
+
+    return Center(
+      child: Stack(
+        alignment: Alignment.bottomRight,
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundImage: backgroundImage,
+            child: backgroundImage == null ? const Icon(Iconsax.profile_circle, size: 50) : null,
+          ),
+          Material(
+            color: Colors.white,
+            shape: const CircleBorder(),
+            elevation: 2,
+            child: InkWell(
+              onTap: _pickImage,
+              customBorder: const CircleBorder(),
+              child: const Padding(
+                padding: EdgeInsets.all(6.0),
+                child: Icon(Iconsax.edit, size: 20, color: Colors.blueAccent),
               ),
-              if (isLoading)
-                const Center(
-                  child: CircularProgressIndicator(),
-                ),
-            ],
-          );
-        },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
       ),
     );
   }

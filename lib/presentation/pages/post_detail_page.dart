@@ -6,6 +6,7 @@ import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_input_field.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_section.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/post_header.dart';
+import 'package:iconsax/iconsax.dart';
 
 // FIX: Changed to StatefulWidget to fetch comments on init
 class PostDetailPage extends StatefulWidget {
@@ -76,7 +77,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
           // TODO: Replace 'wyy' with a real check for post ownership
           if (widget.post.username == 'wyy')
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Iconsax.trash),
               onPressed: _showDeleteConfirmationDialog,
             ),
         ],

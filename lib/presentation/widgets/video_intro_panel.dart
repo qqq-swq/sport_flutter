@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/widgets/video_action_buttons.dart';
+import 'package:iconsax/iconsax.dart';
 
 class VideoIntroPanel extends StatelessWidget {
   final Video currentVideo;
@@ -15,7 +16,6 @@ class VideoIntroPanel extends StatelessWidget {
   final VoidCallback onLike;
   final VoidCallback onDislike;
   final VoidCallback onFavorite;
-  final VoidCallback onShare;
 
   const VideoIntroPanel({
     super.key,
@@ -29,7 +29,6 @@ class VideoIntroPanel extends StatelessWidget {
     required this.onLike,
     required this.onDislike,
     required this.onFavorite,
-    required this.onShare,
   });
 
   @override
@@ -61,7 +60,6 @@ class VideoIntroPanel extends StatelessWidget {
                   onLike: onLike,
                   onDislike: onDislike,
                   onFavorite: onFavorite,
-                  onShare: onShare,
                 ),
                 const Divider(height: 32),
                 Text(l10n.upNext, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -91,7 +89,7 @@ class VideoIntroPanel extends StatelessWidget {
               ? NetworkImage(currentVideo.userAvatarUrl!)
               : null,
           child: currentVideo.userAvatarUrl == null || currentVideo.userAvatarUrl!.isEmpty
-              ? const Icon(Icons.person)
+              ? const Icon(Iconsax.profile)
               : null,
         ),
         const SizedBox(width: 12),

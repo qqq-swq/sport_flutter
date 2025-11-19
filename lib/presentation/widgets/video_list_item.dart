@@ -29,19 +29,17 @@ class _VideoListItemState extends State<VideoListItem> {
 
   @override
   void dispose() {
-    // Use the safe dispose method
     _disposePlayer();
     super.dispose();
   }
 
-  // --- Refactored with async/await for robustness ---
   Future<void> _initializeAndPlay() async {
-    // If a controller is already being initialized or playing, do nothing.
     if (_controller != null) {
       return;
     }
 
-    final cacheManager = RepositoryProvider.of<CacheManager>(context, listen: false);
+    final cacheManager =
+        RepositoryProvider.of<CacheManager>(context, listen: false);
     final fileInfo = await cacheManager.getFileFromCache(widget.video.videoUrl) ??
         await cacheManager.downloadFile(widget.video.videoUrl);
 
@@ -54,37 +52,30 @@ class _VideoListItemState extends State<VideoListItem> {
     try {
       await controller.initialize();
 
-      // After async init, check if the widget is still mounted and if this controller is still the active one.
       if (!mounted || _controller != controller) {
-        await controller.dispose(); // Dispose the orphaned controller
+        await controller.dispose();
         return;
       }
-      
+
       await controller.setLooping(true);
       await controller.play();
       if (mounted) setState(() {});
-
     } catch (e) {
-      // If initialization fails, clean up the controller.
       if (_controller == controller) {
         _controller = null;
-        if(mounted) setState((){});
+        if (mounted) setState(() {});
       }
       await controller.dispose();
     }
   }
 
-  // --- Refactored for safe disposal ---
   void _disposePlayer() {
     final oldController = _controller;
     if (oldController != null) {
-      // Immediately nullify the controller on the state object to prevent
-      // other methods from trying to use it while it's being disposed.
       _controller = null;
       if (mounted) {
         setState(() {});
       }
-      // Dispose the old controller in the background.
       oldController.dispose();
     }
   }
@@ -104,7 +95,9 @@ class _VideoListItemState extends State<VideoListItem> {
         );
 
         if (result is bool && result != widget.video.isFavorited) {
-          context.read<VideoBloc>().add(UpdateFavoriteStatus(widget.video.id, result));
+          context
+              .read<VideoBloc>()
+              .add(UpdateFavoriteStatus(widget.video.id, result));
         }
       },
       child: BlocListener<VideoBloc, VideoState>(
@@ -129,40 +122,59 @@ class _VideoListItemState extends State<VideoListItem> {
             }
           },
           child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             clipBehavior: Clip.antiAlias,
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
+                SizedBox(
+                  width: 160,
+                  height: 90,
                   child: Stack(
                     alignment: Alignment.center,
+                    fit: StackFit.expand,
                     children: [
-                      if (_controller != null && _controller!.value.isInitialized)
-                        VideoPlayer(_controller!)
+                      if (_controller != null &&
+                          _controller!.value.isInitialized)
+                        AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: VideoPlayer(_controller!),
+                        )
                       else
                         CachedNetworkImage(
                           imageUrl: widget.video.thumbnailUrl,
                           fit: BoxFit.cover,
-                          width: double.infinity,
-                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          placeholder: (context, url) =>
+                              const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              const Center(child: Icon(Icons.error)),
                         ),
                       if (_controller == null || !_controller!.value.isPlaying)
-                        const Icon(Icons.play_arrow, size: 60, color: Colors.white70),
+                        const Icon(Icons.play_arrow,
+                            size: 50, color: Colors.white70),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(widget.video.title, style: Theme.of(context).textTheme.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      const SizedBox(height: 8),
-                      Text(widget.video.authorName, style: Theme.of(context).textTheme.bodyMedium),
-                    ],
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0, vertical: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.video.title,
+                          style: Theme.of(context).textTheme.titleMedium,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.video.authorName,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

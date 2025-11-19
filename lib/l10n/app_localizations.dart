@@ -218,6 +218,12 @@ abstract class AppLocalizations {
   /// **'Favorite'**
   String get favorite;
 
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
   /// No description provided for @tenThousand.
   ///
   /// In en, this message translates to:

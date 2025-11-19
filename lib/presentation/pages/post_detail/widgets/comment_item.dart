@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/reply_sheet.dart';
+import 'package:iconsax/iconsax.dart';
 
 class CommentItem extends StatelessWidget {
   final PostComment comment;
@@ -49,7 +50,7 @@ class CommentItem extends StatelessWidget {
                     ? NetworkImage(comment.userAvatarUrl!)
                     : null,
                 child: comment.userAvatarUrl == null || comment.userAvatarUrl!.isEmpty
-                    ? const Icon(Icons.person, size: 16)
+                    ? const Icon(Iconsax.profile, size: 16)
                     : null,
               ),
               const SizedBox(width: 12),
@@ -91,19 +92,19 @@ class CommentItem extends StatelessWidget {
         Text(timeString, style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
         const Spacer(),
 
-        IconButton(icon: Icon(Icons.thumb_up_alt_outlined, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey), onPressed: () => bloc.add(LikeComment(comment.id))),
+        IconButton(icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey), onPressed: () => bloc.add(LikeComment(comment.id))),
         if (comment.likeCount > 0) Text(comment.likeCount.toString(), style: voteStyle),
         const SizedBox(width: 12),
 
-        IconButton(icon: Icon(Icons.thumb_down_alt_outlined, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey), onPressed: () => bloc.add(DislikeComment(comment.id))),
+        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey), onPressed: () => bloc.add(DislikeComment(comment.id))),
         if (comment.dislikeCount > 0) Text(comment.dislikeCount.toString(), style: voteStyle),
         const SizedBox(width: 12),
 
-        IconButton(icon: const Icon(Icons.reply, size: 16, color: Colors.grey), onPressed: () => onReplyTapped(comment)),
+        IconButton(icon: const Icon(Iconsax.message_text_1, size: 16, color: Colors.grey), onPressed: () => onReplyTapped(comment)),
 
         // TODO: Replace with actual ownership check from a user service or similar
         if (comment.username == 'wyy') 
-          IconButton(icon: const Icon(Icons.delete_outline, size: 16, color: Colors.grey), onPressed: () => bloc.add(DeleteComment(comment.id))),
+          IconButton(icon: const Icon(Iconsax.trash, size: 16, color: Colors.grey), onPressed: () => bloc.add(DeleteComment(comment.id))),
       ],
     );
   }

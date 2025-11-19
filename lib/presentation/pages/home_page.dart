@@ -3,6 +3,7 @@ import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/pages/community_page.dart';
 import 'package:sport_flutter/presentation/pages/profile_page.dart';
 import 'package:sport_flutter/presentation/pages/videos_page.dart';
+import 'package:iconsax/iconsax.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,16 +41,19 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: l10n.home, // FIX: Use localization
+            icon: const Icon(Iconsax.home),
+            activeIcon: const Icon(Iconsax.home_2),
+            label: l10n.home,
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.group),
-            label: l10n.community, // FIX: Use localization
+            icon: const Icon(Iconsax.people),
+            activeIcon: const Icon(Iconsax.profile_2user),
+            label: l10n.community, 
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: l10n.profile, // FIX: Use localization
+            icon: const Icon(Iconsax.profile),
+            activeIcon: const Icon(Iconsax.user_octagon),
+            label: l10n.profile, 
           ),
         ],
         currentIndex: _selectedIndex,

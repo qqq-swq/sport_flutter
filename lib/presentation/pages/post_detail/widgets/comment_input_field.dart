@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
-import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
+import 'package:iconsax/iconsax.dart';
 
 class CommentInputField extends StatefulWidget {
   final int postId;
   final PostComment? replyingTo;
   final VoidCallback onCancelReply;
 
-  const CommentInputField({super.key, required this.postId, this.replyingTo, required this.onCancelReply});
+  const CommentInputField({
+    super.key,
+    required this.postId,
+    required this.replyingTo,
+    required this.onCancelReply,
+  });
 
   @override
   State<CommentInputField> createState() => _CommentInputFieldState();
@@ -17,86 +22,60 @@ class CommentInputField extends StatefulWidget {
 
 class _CommentInputFieldState extends State<CommentInputField> {
   final _controller = TextEditingController();
-  final _focusNode = FocusNode();
-
- @override
-  void didUpdateWidget(covariant CommentInputField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.replyingTo != null && oldWidget.replyingTo != widget.replyingTo) {
-      _focusNode.requestFocus();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
 
   void _submitComment() {
     if (_controller.text.trim().isEmpty) return;
 
-    final bloc = context.read<PostCommentBloc>();
-
-    // Optimistic UI update
-    final tempComment = PostComment(
-      id: -1, // Temporary ID
-      content: _controller.text.trim(),
-      username: 'wyy', // Placeholder username, replace with actual user
-      createdAt: DateTime.now(),
-      parentCommentId: widget.replyingTo?.id,
-      likeCount: 0,
-      dislikeCount: 0,
-      replyCount: 0,
-    );
-
-    bloc.add(AddCommentOptimistic(tempComment));
-
-    // Send to server in background
-    bloc.add(CreateComment(
+    context.read<PostCommentBloc>().add(CreateComment(
       postId: widget.postId,
       content: _controller.text.trim(),
       parentCommentId: widget.replyingTo?.id,
     ));
 
     _controller.clear();
-    _focusNode.unfocus();
-    widget.onCancelReply(); 
+    FocusScope.of(context).unfocus(); // Dismiss keyboard
+    widget.onCancelReply(); // Clear reply target
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final isReplying = widget.replyingTo != null;
-    return Container(
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Colors.grey.shade800, width: 0.5))),
-      child: SafeArea(
+    final hintText = widget.replyingTo != null
+        ? '回复 @${widget.replyingTo!.username}'
+        : '发表你的评论...';
+
+    return Material(
+      elevation: 8.0, // Add some shadow
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isReplying)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Row(
-                  children: [
-                    Text(l10n.replyingTo(widget.replyingTo!.username), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        _focusNode.unfocus();
-                        widget.onCancelReply();
-                      },
-                      child: const Icon(Icons.close, size: 16, color: Colors.grey),
-                    )
-                  ],
-                ),
+            if (widget.replyingTo != null)
+              Row(
+                children: [
+                  Text('Replying to @${widget.replyingTo!.username}'),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Iconsax.close_circle, size: 18),
+                    onPressed: widget.onCancelReply,
+                  ),
+                ],
               ),
-            Row(children: [
-              Expanded(child: TextField(focusNode: _focusNode, controller: _controller, decoration: InputDecoration.collapsed(hintText: isReplying ? l10n.sendReply : l10n.postYourComment))),
-              IconButton(icon: const Icon(Icons.send), onPressed: _submitComment)
-            ]),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration.collapsed(hintText: hintText),
+                    autofocus: widget.replyingTo != null, // Autofocus when replying
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Iconsax.send_1),
+                  onPressed: _submitComment,
+                ),
+              ],
+            ),
           ],
         ),
       ),

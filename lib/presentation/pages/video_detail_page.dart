@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sport_flutter/data/datasources/auth_remote_data_source.dart';
-import 'package:sport_flutter/data/models/video_model.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
@@ -116,16 +115,17 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       );
       if (response.statusCode == 200 && mounted) {
         final data = jsonDecode(response.body);
-        final video = VideoModel.fromJson(data);
         final isLiked = data['isLikedByUser'] ?? false;
         final isDisliked = data['isDislikedByUser'] ?? false;
-        final isFavorited = data['isFavorited'] ?? false; // Explicitly parse isFavorited
+        final isFavorited = data['isFavorited'] ?? false;
 
         setState(() {
-          _currentVideo = video;
+          _currentVideo = _currentVideo.copyWith(
+            likeCount: data['like_count'] ?? _currentVideo.likeCount,
+          );
           _isLiked = isLiked;
           _isDisliked = isDisliked;
-          _isFavorited = isFavorited; // Use the parsed value
+          _isFavorited = isFavorited;
         });
       }
     } catch (_) {
@@ -189,28 +189,70 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     if (_isInteracting) return;
     setState(() => _isInteracting = true);
 
+    final bool previousIsLiked = _isLiked;
+    final bool previousIsDisliked = _isDisliked;
+    final int previousLikeCount = _currentVideo.likeCount;
+
+    bool newIsLiked = previousIsLiked;
+    bool newIsDisliked = previousIsDisliked;
+    int newLikeCount = previousLikeCount;
+
+    if (action == 'like') {
+      if (previousIsLiked) {
+        newIsLiked = false;
+        newLikeCount--;
+      } else {
+        newIsLiked = true;
+        newLikeCount++;
+        if (previousIsDisliked) {
+          newIsDisliked = false;
+        }
+      }
+    } else if (action == 'dislike') {
+      if (previousIsDisliked) {
+        newIsDisliked = false;
+      } else {
+        newIsDisliked = true;
+        if (previousIsLiked) {
+          newIsLiked = false;
+          newLikeCount--;
+        }
+      }
+    }
+
+    // 乐观更新UI，立即响应用户操作
+    setState(() {
+      _isLiked = newIsLiked;
+      _isDisliked = newIsDisliked;
+      _currentVideo = _currentVideo.copyWith(likeCount: newLikeCount);
+    });
+
     try {
       final headers = await _getAuthHeaders();
       final response = await http.post(
         Uri.parse('$_apiBaseUrl/videos/${_currentVideo.id}/$action'),
         headers: headers,
       );
-      if (response.statusCode == 200 && mounted) {
-        final data = jsonDecode(response.body);
-        final video = VideoModel.fromJson(data);
-        final isLiked = data['isLikedByUser'] ?? false;
-        final isDisliked = data['isDislikedByUser'] ?? false;
-
-        setState(() {
-          _currentVideo = video;
-          _isLiked = isLiked;
-          _isDisliked = isDisliked;
-        });
+      
+      // 请求成功后，我们信任前端的乐观更新，不再根据服务器返回的数据二次刷新UI。
+      // 这样做可以完全避免因网络延迟或服务器状态与客户端不一致导致的界面闪烁问题。
+      // 只有在请求失败时，才需要将UI回滚到操作前的状态。
+      if (response.statusCode != 200) {
+        throw Exception('Failed to perform vote action: ${response.statusCode}');
       }
     } catch (_) {
-      // Handle error
+      if (mounted) {
+        // 网络请求失败或出错，回滚UI到操作前的状态
+        setState(() {
+          _isLiked = previousIsLiked;
+          _isDisliked = previousIsDisliked;
+          _currentVideo = _currentVideo.copyWith(likeCount: previousLikeCount);
+        });
+      }
     } finally {
-      if (mounted) setState(() => _isInteracting = false);
+      if (mounted) {
+        setState(() => _isInteracting = false);
+      }
     }
   }
 
@@ -229,10 +271,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   void _exitFullScreen() {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
-  }
-  
-  void _onShare() {
-    // TODO: Implement share functionality
   }
 
   @override
@@ -256,25 +294,25 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       appBar: AppBar(title: Text(_currentVideo.title)),
       body: PopScope(
         canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
+        onPopInvoked: (didPop) {
           if (didPop) return;
           Navigator.of(context).pop(_isFavorited);
         },
         child: Column(
           children: [
-            _controller.value.isInitialized
-                ? VideoPlayerWidget(
-                    controller: _controller,
-                    isFullScreen: _isFullScreen,
-                    onToggleFullScreen: _toggleFullScreen,
-                  )
-                : AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: _controller.value.isInitialized
+                  ? VideoPlayerWidget(
+                      controller: _controller,
+                      isFullScreen: _isFullScreen,
+                      onToggleFullScreen: _toggleFullScreen,
+                    )
+                  : Container(
                       color: Colors.black,
                       child: const Center(child: CircularProgressIndicator()),
                     ),
-                  ),
+            ),
             Expanded(child: _buildMetaAndCommentsSection()),
           ],
         ),
@@ -307,7 +345,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
                           onLike: _toggleLike,
                           onDislike: _toggleDislike,
                           onFavorite: _toggleFavorite,
-                          onShare: _onShare,
                         ),
                   CommentSection(videoId: _currentVideo.id),
                 ],

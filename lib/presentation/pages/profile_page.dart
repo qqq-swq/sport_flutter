@@ -8,6 +8,7 @@ import 'package:sport_flutter/presentation/pages/favorites_page.dart';
 import 'package:sport_flutter/presentation/pages/login_page.dart';
 import 'package:sport_flutter/presentation/pages/my_posts_page.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -21,7 +22,7 @@ class ProfilePage extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const Icon(Iconsax.setting_4),
             onPressed: () {},
           ),
         ],
@@ -44,9 +45,9 @@ class ProfilePage extends StatelessWidget {
                 _buildActionList(context, state.user, l10n),
                 const Divider(),
                 ListTile(
-                  leading: const Icon(Icons.info_outline),
+                  leading: const Icon(Iconsax.information),
                   title: Text(l10n.appUsageDeclaration),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(Iconsax.arrow_right_3),
                   onTap: () => _showDeclarationDialog(context, l10n),
                 ),
                 const Divider(),
@@ -91,7 +92,7 @@ class ProfilePage extends StatelessWidget {
                 ? NetworkImage(user.avatarUrl!)
                 : null,
             child: user.avatarUrl == null || user.avatarUrl!.isEmpty
-                ? const Icon(Icons.person, size: 50)
+                ? const Icon(Iconsax.profile, size: 50)
                 : null,
           ),
           const SizedBox(width: 20),
@@ -121,7 +122,7 @@ class ProfilePage extends StatelessWidget {
   Widget _buildActionList(BuildContext context, User user, AppLocalizations l10n) {
     final List<_ActionItem> items = [
       _ActionItem(
-        icon: Icons.article_outlined,
+        icon: Iconsax.note_2,
         title: l10n.myPosts,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
@@ -130,7 +131,7 @@ class ProfilePage extends StatelessWidget {
         },
       ),
       _ActionItem(
-        icon: Icons.favorite_border,
+        icon: Iconsax.star1,
         title: l10n.myFavorites,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
@@ -139,12 +140,12 @@ class ProfilePage extends StatelessWidget {
         },
       ),
       _ActionItem(
-        icon: Icons.language,
+        icon: Iconsax.global,
         title: l10n.language,
         onTap: () => _showLanguageDialog(context, l10n),
       ),
       _ActionItem(
-        icon: Icons.edit_outlined,
+        icon: Iconsax.edit_2,
         title: l10n.editProfile,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
@@ -159,7 +160,7 @@ class ProfilePage extends StatelessWidget {
         return ListTile(
           leading: Icon(item.icon),
           title: Text(item.title),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(Iconsax.arrow_right_3),
           onTap: item.onTap,
         );
       }).toList(),
@@ -223,7 +224,7 @@ class ProfilePage extends StatelessWidget {
           );
         },
         style: TextButton.styleFrom(
-          backgroundColor: Colors.red.withOpacity(0.1),
+          backgroundColor: const Color.fromRGBO(255, 0, 0, 0.1),
           foregroundColor: Colors.red,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(

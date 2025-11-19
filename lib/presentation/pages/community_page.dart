@@ -5,6 +5,7 @@ import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/presentation/pages/create_post_page.dart';
 import 'package:sport_flutter/presentation/pages/post_detail_page.dart';
 import 'package:video_player/video_player.dart';
+import 'package:iconsax/iconsax.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -92,7 +93,7 @@ class _CommunityView extends StatelessWidget {
             ),
           );
         },
-        child: const Icon(Icons.add),
+        child: const Icon(Iconsax.add),
       ),
     );
   }
@@ -151,7 +152,7 @@ class _PostItemState extends State<_PostItem> {
                         color: Colors.black.withOpacity(0.5),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
+                      child: const Icon(Iconsax.play, color: Colors.white, size: 48),
                     ),
                 ],
               ),
@@ -180,7 +181,7 @@ class _PostItemState extends State<_PostItem> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [CircleAvatar(radius: 12, backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty ? NetworkImage(widget.post.userAvatarUrl!) : null, child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty ? const Icon(Icons.person, size: 14) : null,), const SizedBox(width: 8), Text(widget.post.username, style: Theme.of(context).textTheme.bodySmall)]),
+            Row(children: [CircleAvatar(radius: 12, backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty ? NetworkImage(widget.post.userAvatarUrl!) : null, child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty ? const Icon(Iconsax.profile, size: 14) : null,), const SizedBox(width: 8), Text(widget.post.username, style: Theme.of(context).textTheme.bodySmall)]),
             const SizedBox(height: 8),
             Text(widget.post.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),

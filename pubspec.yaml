@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  iconsax: ^0.0.8
   flutter_bloc: ^8.1.5
   equatable: ^2.0.5
   http: ^1.2.1

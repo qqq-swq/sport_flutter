@@ -95,6 +95,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favorite => 'Favorite';
 
   @override
+  String get share => 'Share';
+
+  @override
   String get tenThousand => 'w';
 
   @override

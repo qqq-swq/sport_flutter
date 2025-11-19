@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
+import 'package:iconsax/iconsax.dart';
 
 class VideoActionButtons extends StatelessWidget {
   final bool isLiked;
@@ -10,7 +11,6 @@ class VideoActionButtons extends StatelessWidget {
   final VoidCallback onLike;
   final VoidCallback onDislike;
   final VoidCallback onFavorite;
-  final VoidCallback onShare;
 
   const VideoActionButtons({
     super.key,
@@ -22,7 +22,6 @@ class VideoActionButtons extends StatelessWidget {
     required this.onLike,
     required this.onDislike,
     required this.onFavorite,
-    required this.onShare,
   });
 
   @override
@@ -34,25 +33,28 @@ class VideoActionButtons extends StatelessWidget {
         Expanded(
           child: _buildActionButton(
             context: context,
-            icon: isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+            icon: isLiked ? Iconsax.like_1 : Iconsax.like,
             label: _formatNumber(context, likeCount),
             onPressed: onLike,
+            isSelected: isLiked,
           ),
         ),
         Expanded(
           child: _buildActionButton(
             context: context,
-            icon: isDisliked ? Icons.thumb_down : Icons.thumb_down_outlined,
+            icon: isDisliked ? Iconsax.dislike : Iconsax.dislike,
             label: l10n.dislike,
             onPressed: onDislike,
+            isSelected: isDisliked,
           ),
         ),
         Expanded(
           child: _buildActionButton(
             context: context,
-            icon: isFavorited ? Icons.star : Icons.star_border,
+            icon: isFavorited ? Iconsax.star1 : Iconsax.star,
             label: l10n.favorite,
             onPressed: onFavorite,
+            isSelected: isFavorited,
           ),
         ),
       ],
@@ -63,24 +65,28 @@ class VideoActionButtons extends StatelessWidget {
     required BuildContext context,
     required IconData icon,
     required String label,
+    required bool isSelected,
     VoidCallback? onPressed,
   }) {
-    // Making the button unresponsive when an interaction is in progress
     final bool isButtonDisabled = isInteracting && (onPressed == onLike || onPressed == onDislike);
-    
+
     return InkWell(
+      borderRadius: BorderRadius.circular(8.0),
       onTap: isButtonDisabled ? null : onPressed,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 28,
-            color: isButtonDisabled ? Colors.grey : Theme.of(context).iconTheme.color,
-          ),
-          const SizedBox(height: 4),
-          Text(label, style: Theme.of(context).textTheme.labelMedium),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 28,
+              color: isSelected ? Theme.of(context).colorScheme.primary : (isButtonDisabled ? Colors.grey : Theme.of(context).iconTheme.color),
+            ),
+            const SizedBox(height: 4),
+            Text(label, style: Theme.of(context).textTheme.labelMedium),
+          ],
+        ),
       ),
     );
   }
@@ -89,7 +95,7 @@ class VideoActionButtons extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     if (n >= 10000) {
       return '${(n / 10000).toStringAsFixed(1)}${l10n.tenThousand}';
-    } 
+    }
     return n.toString();
   }
 }

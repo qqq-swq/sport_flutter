@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sport_flutter/domain/entities/comment.dart';
 import 'package:sport_flutter/presentation/bloc/comment_bloc.dart';
+import 'package:iconsax/iconsax.dart';
 
 // Helper function to show a single, replaceable replies sheet.
 Future<Comment?> _showRepliesSheet(BuildContext context, Comment parentComment) {
@@ -125,7 +126,7 @@ class _CommentItem extends StatelessWidget {
                 ? NetworkImage(comment.userAvatarUrl!)
                 : null,
             child: comment.userAvatarUrl == null || comment.userAvatarUrl!.isEmpty
-                ? const Icon(Icons.person_outline)
+                ? const Icon(Iconsax.profile)
                 : null,
           ),
           const SizedBox(width: 12),
@@ -156,52 +157,29 @@ class _CommentItem extends StatelessWidget {
 
   Widget _buildCommentActions(BuildContext context) {
     final localTime = comment.createdAt.toLocal();
+    final bloc = context.read<CommentBloc>();
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    final voteStyle = textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold);
+
     return Row(
       children: [
-        Expanded(
-          child: Row(
-            children: [
-              Text(DateFormat('MM-dd HH:mm').format(localTime), style: Theme.of(context).textTheme.bodySmall, overflow: TextOverflow.ellipsis),
-              const SizedBox(width: 16),
-              // Show reply button if it has no replies OR if it is the header of the sheet.
-              if (comment.replyCount == 0 || isSheetHeader)
-                InkWell(
-                  child: const Text('回复', style: TextStyle(fontSize: 12, color: Colors.blueAccent)),
-                  onTap: () => onReply(comment),
-                ),
-            ],
-          ),
-        ),
-        Row(
-          children: [
-            _buildVoteButton(context, 'like'),
-            Text(' ${NumberFormat.compact().format(comment.likeCount)}', style: const TextStyle(fontSize: 12)),
-            const SizedBox(width: 16),
-            _buildVoteButton(context, 'dislike'),
-            const SizedBox(width: 16),
-            IconButton(
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: const Icon(Icons.delete_outline, size: 16),
-              onPressed: () => context.read<CommentBloc>().add(DeleteComment(comment.id)),
-            ),
-          ],
-        )
+        Text(DateFormat('MM-dd HH:mm').format(localTime), style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
+        const Spacer(),
+
+        IconButton(icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey), onPressed: () => bloc.add(VoteComment(comment.id, 'like'))),
+        if (comment.likeCount > 0) Text(NumberFormat.compact().format(comment.likeCount), style: voteStyle),
+        const SizedBox(width: 12),
+
+        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey), onPressed: () => bloc.add(VoteComment(comment.id, 'dislike'))),
+        const SizedBox(width: 12),
+
+        IconButton(icon: const Icon(Iconsax.message_text_1, size: 16, color: Colors.grey), onPressed: () => onReply(comment)),
+
+        // TODO: Replace with actual ownership check
+        if (comment.username == 'wyy') 
+          IconButton(icon: const Icon(Iconsax.trash, size: 16, color: Colors.grey), onPressed: () => bloc.add(DeleteComment(comment.id))),
       ],
-    );
-  }
-
-  Widget _buildVoteButton(BuildContext context, String voteType) {
-    final isSelected = comment.userVote == voteType;
-    final icon = voteType == 'like'
-        ? (isSelected ? Icons.thumb_up : Icons.thumb_up_outlined)
-        : (isSelected ? Icons.thumb_down : Icons.thumb_down_outlined);
-
-    return IconButton(
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(),
-      icon: Icon(icon, size: 16),
-      onPressed: () => context.read<CommentBloc>().add(VoteComment(comment.id, voteType)),
     );
   }
 }
@@ -306,7 +284,7 @@ class _RepliesSheetState extends State<_RepliesSheet> {
           const SizedBox(width: 48),
           Text('评论详情 ($replyCount)'),
           IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(Iconsax.close_circle),
               onPressed: () => Navigator.of(context).pop()),
         ],
       ),
@@ -383,7 +361,7 @@ class _CommentInputFieldState extends State<_CommentInputField> {
                   Text('正在回复 @${widget.replyingToComment!.username}', style: Theme.of(context).textTheme.bodySmall),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 16),
+                    icon: const Icon(Iconsax.close_circle, size: 16),
                     onPressed: widget.onCancelReply,
                   )
                 ],
@@ -404,7 +382,7 @@ class _CommentInputFieldState extends State<_CommentInputField> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.send),
+                icon: const Icon(Iconsax.send_1),
                 onPressed: _submitComment,
                 color: Colors.blueAccent,
               ),

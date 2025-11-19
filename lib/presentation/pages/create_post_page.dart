@@ -74,6 +74,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
                       disabledBackgroundColor: Colors.grey.shade700,
                     ),
                     child: isSubmitting
