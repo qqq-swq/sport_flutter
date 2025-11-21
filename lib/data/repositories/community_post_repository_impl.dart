@@ -26,4 +26,24 @@ class CommunityPostRepositoryImpl implements CommunityPostRepository {
   Future<void> deletePost(int postId) async {
     return await remoteDataSource.deletePost(postId);
   }
+
+  @override
+  Future<Map<String, dynamic>> favoritePost(int postId) async {
+    return await remoteDataSource.favoritePost(postId);
+  }
+
+  @override
+  Future<Map<String, dynamic>> dislikePost(int postId) async {
+    return await remoteDataSource.dislikePost(postId);
+  }
+
+  @override
+  Future<Map<String, dynamic>> likePost(int postId) async {
+    return await remoteDataSource.likePost(postId);
+  }
+
+  @override
+  Future<List<CommunityPost>> getFavoritePosts() async {
+    return await remoteDataSource.getFavoritePosts();
+  }
 }

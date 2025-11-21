@@ -10,7 +10,6 @@ import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_event.dart';
 import 'package:sport_flutter/presentation/bloc/video_state.dart';
-import 'package:sport_flutter/presentation/pages/video_detail_page.dart';
 
 class VideoGridPage extends StatefulWidget {
   final String title;
@@ -103,7 +102,7 @@ class _VideoGridPageState extends State<VideoGridPage> {
               );
             }
             if (state is VideoError) {
-              return Center(child: Text('Failed to fetch videos: \${state.message}'));
+              return Center(child: Text('Failed to fetch videos: ${state.message}'));
             }
             return const Center(child: CircularProgressIndicator());
           },
@@ -121,37 +120,27 @@ class _GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        context.read<VideoBloc>().add(const PausePlayback());
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => VideoDetailPage(video: video, recommendedVideos: allVideos),
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: Image.network(
+              video.thumbnailUrl,
+              fit: BoxFit.cover,
+            ),
           ),
-        );
-      },
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Image.network(
-                video.thumbnailUrl,
-                fit: BoxFit.cover,
-              ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              video.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                video.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

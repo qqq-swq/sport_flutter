@@ -6,4 +6,8 @@ abstract class CommunityPostRepository {
   Future<List<CommunityPost>> getMyPosts(); // New method
   Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl, String? userAvatarUrl);
   Future<void> deletePost(int postId);
+  Future<Map<String, dynamic>> favoritePost(int postId);
+  Future<Map<String, dynamic>> dislikePost(int postId);
+  Future<Map<String, dynamic>> likePost(int postId);
+  Future<List<CommunityPost>> getFavoritePosts();
 }

@@ -108,7 +108,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await sendCodeUseCase(event.email);
       emit(AuthCodeSent());
     } catch (e) {
-      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
+      emit(AuthError((e as Exception).toString()));
     }
   }
 
@@ -118,7 +118,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await registerUseCase(event.username, event.email, event.password, event.code);
       emit(AuthRegistrationSuccess());
     } catch (e) {
-      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
+      emit(AuthError((e as Exception).toString()));
     }
   }
 
@@ -131,7 +131,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await getUserProfileUseCase();
       emit(AuthAuthenticated(user: user));
     } catch (e) {
-      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
+      emit(AuthError((e as Exception).toString()));
     }
   }
 
@@ -151,7 +151,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthAuthenticated(user: updatedUser));
     } catch (e) {
-      emit(AuthError((e as Exception).toString().replaceAll('Exception: ', '')));
+      emit(AuthError((e as Exception).toString()));
     }
   }
 }

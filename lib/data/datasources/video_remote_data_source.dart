@@ -101,6 +101,9 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
       Uri.parse('$_baseUrl/videos/recommended'),
     );
 
+    // --- 诊断日志 ---
+    print('GET /videos/recommended RAW RESPONSE: ${response.body}');
+
     if (response.statusCode == 200) {
       final List<dynamic> videoList = json.decode(response.body);
       return videoList.map((json) => VideoModel.fromJson(json)).toList();

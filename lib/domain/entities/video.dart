@@ -10,7 +10,7 @@ class Video extends Equatable {
   final int viewCount;
   final int likeCount;
   final DateTime createdAt;
-  final bool isFavorited; // New field
+  final bool isFavorited;
 
   const Video({
     required this.id,
@@ -22,7 +22,7 @@ class Video extends Equatable {
     required this.viewCount,
     required this.likeCount,
     required this.createdAt,
-    this.isFavorited = false, // Default to false
+    this.isFavorited = false,
   });
 
   Video copyWith({

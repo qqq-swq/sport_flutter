@@ -134,7 +134,7 @@ class _CommentItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(comment.username, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
+                Text(comment.username, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
                 const SizedBox(height: 4),
                 Text(comment.content),
                 const SizedBox(height: 8),
@@ -164,21 +164,21 @@ class _CommentItem extends StatelessWidget {
 
     return Row(
       children: [
-        Text(DateFormat('MM-dd HH:mm').format(localTime), style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
+        Text(DateFormat('MM-dd HH:mm').format(localTime), style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
         const Spacer(),
 
-        IconButton(icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey), onPressed: () => bloc.add(VoteComment(comment.id, 'like'))),
+        IconButton(icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'like'))),
         if (comment.likeCount > 0) Text(NumberFormat.compact().format(comment.likeCount), style: voteStyle),
         const SizedBox(width: 12),
 
-        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey), onPressed: () => bloc.add(VoteComment(comment.id, 'dislike'))),
+        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'dislike'))),
         const SizedBox(width: 12),
 
-        IconButton(icon: const Icon(Iconsax.message_text_1, size: 16, color: Colors.grey), onPressed: () => onReply(comment)),
+        IconButton(icon: Icon(Iconsax.message_text_1, size: 16, color: Colors.grey.shade600), onPressed: () => onReply(comment)),
 
         // TODO: Replace with actual ownership check
         if (comment.username == 'wyy') 
-          IconButton(icon: const Icon(Iconsax.trash, size: 16, color: Colors.grey), onPressed: () => bloc.add(DeleteComment(comment.id))),
+          IconButton(icon: Icon(Iconsax.trash, size: 16, color: Colors.grey.shade600), onPressed: () => bloc.add(DeleteComment(comment.id))),
       ],
     );
   }
@@ -223,7 +223,7 @@ class _RepliesSheetState extends State<_RepliesSheet> {
           builder: (_, scrollController) {
             return Container(
               decoration: const BoxDecoration(
-                  color: Color(0xFF222222),
+                  color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
               child: Column(
                 children: [
@@ -349,7 +349,7 @@ class _CommentInputFieldState extends State<_CommentInputField> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade800))),
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade200))),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

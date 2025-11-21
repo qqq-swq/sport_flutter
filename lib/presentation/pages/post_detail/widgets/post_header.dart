@@ -1,91 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
-import 'package:video_player/video_player.dart';
-import 'package:iconsax/iconsax.dart';
 
-class PostHeader extends StatefulWidget {
+class PostHeader extends StatelessWidget {
   final CommunityPost post;
+
   const PostHeader({super.key, required this.post});
 
-  @override
-  State<PostHeader> createState() => _PostHeaderState();
-}
-
-class _PostHeaderState extends State<PostHeader> {
-  VideoPlayerController? _controller;
-  Future<void>? _initializeVideoPlayerFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.post.videoUrl != null && widget.post.videoUrl!.isNotEmpty) {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.post.videoUrl!))
-        ..addListener(() {
-          if (mounted) {
-            setState(() {});
-          }
-        });
-      _initializeVideoPlayerFuture = _controller!.initialize()..then((_) {
-        if (mounted) setState(() {});
-      });
+  // Helper to check for a valid URL
+  bool _isValidUrl(String? url) {
+    if (url == null || url.isEmpty) return false;
+    try {
+      final uri = Uri.parse(url);
+      return uri.isAbsolute;
+    } catch (e) {
+      return false;
     }
   }
 
   @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-    @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildAuthorInfo(context),
-          const SizedBox(height: 24),
-          _buildPostContent(context),
-          const SizedBox(height: 24),
-          _buildMediaContent(),
-          const Divider(height: 48),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: _isValidUrl(post.userAvatarUrl)
+                    ? CachedNetworkImageProvider(post.userAvatarUrl!)
+                    : null,
+                child: !_isValidUrl(post.userAvatarUrl)
+                    ? const Icon(Icons.person, size: 20)
+                    : null,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(post.username, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    DateFormat('yyyy-MM-dd HH:mm').format(post.createdAt),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (post.title.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(post.title, style: Theme.of(context).textTheme.titleLarge),
+            ),
+          Text(post.content, style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 12),
+          if (post.imageUrl != null && post.imageUrl!.isNotEmpty)
+            AspectRatio(
+              aspectRatio: 1 / 1,
+              child: CachedNetworkImage(
+                imageUrl: post.imageUrl!,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
         ],
       ),
     );
-  }
-  
-  Widget _buildVideoPlayer() {
-    return FutureBuilder(
-      future: _initializeVideoPlayerFuture,
-      builder: (context, snapshot) {
-        if (_controller != null && _controller!.value.isInitialized) {
-          return AspectRatio(
-            aspectRatio: _controller!.value.aspectRatio,
-            child: GestureDetector(
-              onTap: () => setState(() => _controller!.value.isPlaying ? _controller!.pause() : _controller!.play()),
-              child: Stack(alignment: Alignment.center, children: <Widget>[ VideoPlayer(_controller!), if (!_controller!.value.isPlaying) Container(padding: const EdgeInsets.all(8.0), decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle), child: const Icon(Iconsax.play, color: Colors.white, size: 60))]),
-            ),
-          );
-        } else {
-          return const SizedBox(height: 250, child: Center(child: CircularProgressIndicator()));
-        }
-      },
-    );
-  }
-
-  Widget _buildAuthorInfo(BuildContext context) {
-    return Row(children: [CircleAvatar(radius: 20, backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty ? NetworkImage(widget.post.userAvatarUrl!) : null, child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty ? const Icon(Iconsax.profile) : null), const SizedBox(width: 12), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(widget.post.username, style: Theme.of(context).textTheme.titleMedium), Text(DateFormat('yyyy-MM-dd HH:mm').format(widget.post.createdAt), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey))])]);
-  }
-
-  Widget _buildPostContent(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(widget.post.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)), const SizedBox(height: 16), Text(widget.post.content, style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5))]);
-  }
-
-  Widget _buildMediaContent() {
-    if (widget.post.imageUrl != null) return ClipRRect(borderRadius: BorderRadius.circular(12.0), child: Image.network(widget.post.imageUrl!, fit: BoxFit.cover, width: double.infinity));
-    if (widget.post.videoUrl != null) return ClipRRect(borderRadius: BorderRadius.circular(12.0), child: _buildVideoPlayer());
-    return const SizedBox.shrink();
   }
 }

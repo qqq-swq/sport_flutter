@@ -83,6 +83,7 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           }
           if (state is AuthCodeSent) {
+            Navigator.of(context).pop(); // Close loading dialog
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(l10n.codeSent), backgroundColor: Colors.blue),
             );
@@ -152,12 +153,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       Flexible(
                         child: RichText(
                           text: TextSpan(
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white),
+                            style: Theme.of(context).textTheme.bodySmall,
                             children: <TextSpan>[
                               TextSpan(text: l10n.agreement),
                               TextSpan(
                                 text: l10n.userAgreement,
-                                style: const TextStyle(decoration: TextDecoration.none),
+                                style: TextStyle(color: Theme.of(context).colorScheme.primary),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     showDialog(

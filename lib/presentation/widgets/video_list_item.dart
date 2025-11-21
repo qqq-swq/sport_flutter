@@ -82,44 +82,38 @@ class _VideoListItemState extends State<VideoListItem> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        context.read<VideoBloc>().add(const PausePlayback());
-        final result = await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => VideoDetailPage(
-              video: widget.video,
-              recommendedVideos: widget.allVideos,
-            ),
-          ),
-        );
-
-        if (result is bool && result != widget.video.isFavorited) {
-          context
-              .read<VideoBloc>()
-              .add(UpdateFavoriteStatus(widget.video.id, result));
+    return BlocListener<VideoBloc, VideoState>(
+      listener: (context, state) {
+        if (state is VideoLoaded) {
+          final bool isMyTurnToPlay = state.activeVideoId == widget.video.id;
+          if (isMyTurnToPlay && _controller == null) {
+            _initializeAndPlay();
+          } else if (!isMyTurnToPlay && _controller != null) {
+            _disposePlayer();
+          }
         }
       },
-      child: BlocListener<VideoBloc, VideoState>(
-        listener: (context, state) {
-          if (state is VideoLoaded) {
-            final bool isMyTurnToPlay = state.activeVideoId == widget.video.id;
-            if (isMyTurnToPlay && _controller == null) {
-              _initializeAndPlay();
-            } else if (!isMyTurnToPlay && _controller != null) {
-              _disposePlayer();
-            }
+      child: VisibilityDetector(
+        key: Key(widget.video.id.toString()),
+        onVisibilityChanged: (visibilityInfo) {
+          if (mounted) {
+            context.read<VideoBloc>().add(UpdateVideoVisibility(
+                  widget.video.id,
+                  visibilityInfo.visibleFraction,
+                ));
           }
         },
-        child: VisibilityDetector(
-          key: Key(widget.video.id.toString()),
-          onVisibilityChanged: (visibilityInfo) {
-            if (mounted) {
-              context.read<VideoBloc>().add(UpdateVideoVisibility(
-                    widget.video.id,
-                    visibilityInfo.visibleFraction,
-                  ));
-            }
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VideoDetailPage(
+                  video: widget.video,
+                  recommendedVideos: widget.allVideos,
+                ),
+              ),
+            );
           },
           child: Card(
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

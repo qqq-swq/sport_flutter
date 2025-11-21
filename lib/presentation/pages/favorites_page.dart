@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/presentation/bloc/favorites_bloc.dart';
 import 'package:sport_flutter/presentation/pages/video_detail_page.dart';
 import 'package:sport_flutter/presentation/widgets/video_list_item.dart';
@@ -35,20 +36,22 @@ class _FavoritesPageState extends State<FavoritesPage> {
               itemCount: state.videos.length,
               itemBuilder: (context, index) {
                 final video = state.videos[index];
-                return InkWell(
-                  onTap: () async {
-                    final result = await Navigator.push(
+                return GestureDetector(
+                  onTap: () {
+                    final recommendedVideos = state.videos.where((v) => v.id != video.id).toList();
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => VideoDetailPage(video: video),
+                        builder: (context) => VideoDetailPage(
+                          video: video,
+                          recommendedVideos: recommendedVideos,
+                        ),
                       ),
-                    );
-
-                    // After returning, if the result is a boolean (the favorite status),
-                    // and it has changed to false, refresh the favorites list.
-                    if (result is bool && !result && mounted) {
-                      context.read<FavoritesBloc>().add(FetchFavorites());
-                    }
+                    ).then((isFavorited) {
+                      if (isFavorited is bool && !isFavorited) {
+                        context.read<FavoritesBloc>().add(RemoveFavorite(video));
+                      }
+                    });
                   },
                   child: VideoListItem(video: video),
                 );

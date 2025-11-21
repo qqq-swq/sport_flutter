@@ -8,7 +8,11 @@ abstract class CommunityRemoteDataSource {
   Future<List<CommunityPostModel>> getPosts();
   Future<List<CommunityPostModel>> getMyPosts(); // New method
   Future<void> createPost(String title, String content, String? imageUrl, String? videoUrl, String? userAvatarUrl);
-  Future<void> deletePost(int postId); 
+  Future<void> deletePost(int postId);
+  Future<Map<String, dynamic>> favoritePost(int postId);
+  Future<Map<String, dynamic>> dislikePost(int postId);
+  Future<Map<String, dynamic>> likePost(int postId);
+  Future<List<CommunityPostModel>> getFavoritePosts();
 }
 
 class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
@@ -90,6 +94,67 @@ class CommunityRemoteDataSourceImpl implements CommunityRemoteDataSource {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to delete post. Status: ${response.statusCode}');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> favoritePost(int postId) async {
+    final headers = await _getAuthHeaders();
+    final response = await client.post(
+      Uri.parse('$_baseUrl/community/posts/$postId/favorite'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to favorite post');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> dislikePost(int postId) async {
+    final headers = await _getAuthHeaders();
+    final response = await client.post(
+      Uri.parse('$_baseUrl/community/posts/$postId/dislike'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to dislike post');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> likePost(int postId) async {
+    final headers = await _getAuthHeaders();
+    final response = await client.post(
+      Uri.parse('$_baseUrl/community/posts/$postId/like'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to like post');
+    }
+  }
+
+  @override
+  Future<List<CommunityPostModel>> getFavoritePosts() async {
+    final headers = await _getAuthHeaders();
+    final response = await client.get(
+      Uri.parse('$_baseUrl/community/posts/favorites'), 
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+      return data.map((json) => CommunityPostModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load favorite posts. Status: ${response.statusCode}');
     }
   }
 }
