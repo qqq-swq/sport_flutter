@@ -52,6 +52,7 @@ import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/my_posts_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/favorites_bloc.dart'; // New
+import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/locale_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/community_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
@@ -150,6 +151,9 @@ void main() async {
           ),
           BlocProvider(
             create: (context) => FavoritesBloc(getFavoriteVideos: getFavoriteVideosUseCase),
+          ),
+          BlocProvider(
+            create: (context) => RecommendedVideoBloc(getRecommendedVideos: getRecommendedVideosUseCase),
           ),
           BlocProvider(
             create: (context) => CommunityBloc(

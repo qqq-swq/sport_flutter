@@ -14,6 +14,7 @@ import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/comment_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/favorites_bloc.dart';
+import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/widgets/comment_widgets.dart';
 import 'package:sport_flutter/presentation/widgets/video_intro_panel.dart';
 import 'package:sport_flutter/presentation/widgets/video_player_widget.dart';
@@ -21,12 +22,10 @@ import 'package:video_player/video_player.dart';
 
 class VideoDetailPage extends StatefulWidget {
   final Video video;
-  final List<Video> recommendedVideos;
 
   const VideoDetailPage({
     super.key,
     required this.video,
-    this.recommendedVideos = const [],
   });
 
   @override
@@ -54,6 +53,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     _currentVideo = widget.video;
     _isFavorited = widget.video.isFavorited;
     _commentBloc = CommentBloc();
+    _commentBloc.add(FetchComments(_currentVideo.id));
+    context.read<RecommendedVideoBloc>().add(FetchRecommendedVideos());
     _initializePlayer(_currentVideo.videoUrl);
     _fetchInitialStatus();
   }
@@ -334,17 +335,25 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
                 children: [
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : VideoIntroPanel(
-                          currentVideo: _currentVideo,
-                          recommendedVideos: widget.recommendedVideos,
-                          isLiked: _isLiked,
-                          isDisliked: _isDisliked,
-                          isFavorited: _isFavorited,
-                          isInteracting: _isInteracting,
-                          onChangeVideo: _changeVideo,
-                          onLike: _toggleLike,
-                          onDislike: _toggleDislike,
-                          onFavorite: _toggleFavorite,
+                      : BlocBuilder<RecommendedVideoBloc, RecommendedVideoState>(
+                          builder: (context, state) {
+                            List<Video> recommendedVideos = [];
+                            if (state is RecommendedVideoLoaded) {
+                              recommendedVideos = state.videos;
+                            }
+                            return VideoIntroPanel(
+                              currentVideo: _currentVideo,
+                              recommendedVideos: recommendedVideos,
+                              isLiked: _isLiked,
+                              isDisliked: _isDisliked,
+                              isFavorited: _isFavorited,
+                              isInteracting: _isInteracting,
+                              onChangeVideo: _changeVideo,
+                              onLike: _toggleLike,
+                              onDislike: _toggleDislike,
+                              onFavorite: _toggleFavorite,
+                            );
+                          },
                         ),
                   CommentSection(videoId: _currentVideo.id),
                 ],

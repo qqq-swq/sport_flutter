@@ -12,12 +12,10 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 class VideoListItem extends StatefulWidget {
   final Video video;
-  final List<Video> allVideos;
 
   const VideoListItem({
     super.key,
     required this.video,
-    this.allVideos = const [],
   });
 
   @override
@@ -110,7 +108,6 @@ class _VideoListItemState extends State<VideoListItem> {
               MaterialPageRoute(
                 builder: (context) => VideoDetailPage(
                   video: widget.video,
-                  recommendedVideos: widget.allVideos,
                 ),
               ),
             );

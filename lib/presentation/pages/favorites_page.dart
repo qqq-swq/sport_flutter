@@ -38,13 +38,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 final video = state.videos[index];
                 return GestureDetector(
                   onTap: () {
-                    final recommendedVideos = state.videos.where((v) => v.id != video.id).toList();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => VideoDetailPage(
                           video: video,
-                          recommendedVideos: recommendedVideos,
                         ),
                       ),
                     ).then((isFavorited) {

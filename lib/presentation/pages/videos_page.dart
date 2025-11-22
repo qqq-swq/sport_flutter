@@ -163,7 +163,7 @@ class _VideoCarouselState extends State<_VideoCarousel> {
                 return GestureDetector(
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => VideoDetailPage(video: video, recommendedVideos: recommendedVideos),
+                      builder: (_) => VideoDetailPage(video: video),
                     ),
                   ),
                   child: Card(
@@ -325,7 +325,7 @@ class _VideoThumbnailCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => VideoDetailPage(video: video, recommendedVideos: allVideos),
+          builder: (_) => VideoDetailPage(video: video),
         ),
       ),
       child: SizedBox(
