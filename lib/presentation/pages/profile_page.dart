@@ -116,7 +116,7 @@ class ProfilePage extends StatelessWidget {
         },
       ),
       _ActionItem(
-        icon: Iconsax.star1,
+        icon: Iconsax.star,
         title: l10n.myFavorites,
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
@@ -164,14 +164,14 @@ class ProfilePage extends StatelessWidget {
               ListTile(
                 title: const Text('English'),
                 onTap: () {
-                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('en')));
+                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('en', '')));
                   Navigator.of(dialogContext).pop();
                 },
               ),
               ListTile(
                 title: const Text('中文'),
                 onTap: () {
-                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('zh')));
+                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('zh', 'CN')));
                   Navigator.of(dialogContext).pop();
                 },
               ),

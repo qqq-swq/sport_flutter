@@ -96,5 +96,23 @@
     "invalidUsernameOrPassword": "Invalid username or password",
     "loginFailedTitle": "Login Failed",
     "ok": "OK",
-    "enterPassword": "Please enter a password"
+    "enterPassword": "Please enter a password",
+
+    "createPost": "Create Post",
+    "title": "Title",
+    "content": "Content...",
+    "publish": "Publish",
+
+    "replies": "Replies",
+
+    "selectPicturesFromAlbum": "Select pictures from album",
+    "selectVideoFromAlbum": "Select video from album (one at a time)",
+    "fileLimitExceeded": "File limit exceeded! You can still select {remainingSpace} more files.",
+    "@fileLimitExceeded": {
+        "placeholders": {
+            "remainingSpace": {
+                "type": "int"
+            }
+        }
+    }
 }

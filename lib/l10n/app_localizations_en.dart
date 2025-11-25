@@ -209,4 +209,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enterPassword => 'Please enter a password';
+
+  @override
+  String get createPost => 'Create Post';
+
+  @override
+  String get title => 'Title';
+
+  @override
+  String get content => 'Content...';
+
+  @override
+  String get publish => 'Publish';
+
+  @override
+  String get replies => 'Replies';
+
+  @override
+  String get selectPicturesFromAlbum => 'Select pictures from album';
+
+  @override
+  String get selectVideoFromAlbum => 'Select video from album (one at a time)';
+
+  @override
+  String fileLimitExceeded(int remainingSpace) {
+    return 'File limit exceeded! You can still select $remainingSpace more files.';
+  }
 }

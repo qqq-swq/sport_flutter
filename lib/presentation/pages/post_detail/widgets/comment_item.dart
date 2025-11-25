@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:sport_flutter/common/time_formatter.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
+import 'package:sport_flutter/presentation/bloc/locale_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/reply_sheet.dart';
 import 'package:iconsax/iconsax.dart';
@@ -13,7 +14,14 @@ class CommentItem extends StatelessWidget {
   final bool isReply;
   final bool showReplyButton;
 
-  const CommentItem({super.key, required this.comment, required this.postId, required this.onReplyTapped, this.isReply = false, this.showReplyButton = true});
+  const CommentItem({
+    super.key,
+    required this.comment,
+    required this.postId,
+    required this.onReplyTapped,
+    this.isReply = false,
+    this.showReplyButton = true,
+  });
 
   void _showReplySheet(BuildContext context, PostComment parentComment) {
     showModalBottomSheet(
@@ -23,18 +31,18 @@ class CommentItem extends StatelessWidget {
       builder: (_) => BlocProvider.value(
         value: BlocProvider.of<PostCommentBloc>(context),
         child: DraggableScrollableSheet(
-            initialChildSize: 0.8,
-            minChildSize: 0.4,
-            maxChildSize: 0.95,
-            builder: (BuildContext context, ScrollController scrollController) {
-              return ReplySheet(parentCommentId: parentComment.id, postId: postId, scrollController: scrollController);
-            },
-          ),
+          initialChildSize: 0.8,
+          minChildSize: 0.4,
+          maxChildSize: 0.95,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return ReplySheet(parentCommentId: parentComment.id, postId: postId, scrollController: scrollController);
+          },
+        ),
       ),
     );
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(isReply ? 40.0 : 16.0, 8.0, 16.0, 8.0),
@@ -49,9 +57,7 @@ class CommentItem extends StatelessWidget {
                 backgroundImage: comment.userAvatarUrl != null && comment.userAvatarUrl!.isNotEmpty
                     ? NetworkImage(comment.userAvatarUrl!)
                     : null,
-                child: comment.userAvatarUrl == null || comment.userAvatarUrl!.isEmpty
-                    ? const Icon(Iconsax.profile, size: 16)
-                    : null,
+                child: comment.userAvatarUrl == null || comment.userAvatarUrl!.isEmpty ? const Icon(Iconsax.profile, size: 16) : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -84,27 +90,35 @@ class CommentItem extends StatelessWidget {
   Widget _buildActionRow(BuildContext context, TextTheme textTheme, ColorScheme colorScheme) {
     final bloc = context.read<PostCommentBloc>();
     final voteStyle = textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold);
-    final localTime = comment.createdAt.toLocal();
-    final timeString = DateFormat('MM-dd HH:mm').format(localTime);
+    final locale = context.watch<LocaleBloc>().state.locale.toLanguageTag();
+    final timeString = formatTimestamp(comment.createdAt, locale: locale.replaceAll('-', '_'));
 
     return Row(
       children: [
         Text(timeString, style: textTheme.bodySmall?.copyWith(color: Colors.grey)),
         const Spacer(),
-
-        IconButton(icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey), onPressed: () => bloc.add(LikeComment(comment.id))),
+        IconButton(
+          icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey),
+          onPressed: () => bloc.add(LikeComment(comment.id)),
+        ),
         if (comment.likeCount > 0) Text(comment.likeCount.toString(), style: voteStyle),
         const SizedBox(width: 12),
-
-        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey), onPressed: () => bloc.add(DislikeComment(comment.id))),
+        IconButton(
+          icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey),
+          onPressed: () => bloc.add(DislikeComment(comment.id)),
+        ),
         if (comment.dislikeCount > 0) Text(comment.dislikeCount.toString(), style: voteStyle),
         const SizedBox(width: 12),
-
-        IconButton(icon: const Icon(Iconsax.message_text_1, size: 16, color: Colors.grey), onPressed: () => onReplyTapped(comment)),
-
+        IconButton(
+          icon: const Icon(Iconsax.message_text_1, size: 16, color: Colors.grey),
+          onPressed: () => onReplyTapped(comment),
+        ),
         // TODO: Replace with actual ownership check from a user service or similar
-        if (comment.username == 'wyy') 
-          IconButton(icon: const Icon(Iconsax.trash, size: 16, color: Colors.grey), onPressed: () => bloc.add(DeleteComment(comment.id))),
+        if (comment.username == 'wyy')
+          IconButton(
+            icon: const Icon(Iconsax.trash, size: 16, color: Colors.grey),
+            onPressed: () => bloc.add(DeleteComment(comment.id)),
+          ),
       ],
     );
   }

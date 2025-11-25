@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:sport_flutter/presentation/pages/home_page.dart';
 import 'l10n/app_localizations.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:timeago/src/messages/zh_cn_messages.dart';
 
 // Core
 import 'package:sport_flutter/presentation/pages/login_page.dart';
@@ -67,6 +69,7 @@ final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  timeago.setLocaleMessages('zh', ZhCnMessages());
 
   // HTTP Clients
   final httpClient = http.Client();
@@ -129,7 +132,7 @@ void main() async {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (context) => LocaleBloc()),
+          BlocProvider(create: (context) => LocaleBloc()..add(LoadLocale())),
           BlocProvider(
             create: (context) => AuthBloc(
               loginUseCase: loginUseCase,

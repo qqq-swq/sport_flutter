@@ -7,6 +7,7 @@ import 'package:sport_flutter/presentation/pages/create_post_page.dart';
 import 'package:sport_flutter/presentation/pages/post_detail_page.dart';
 import 'package:video_player/video_player.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 
 class CommunityPage extends StatefulWidget {
   const CommunityPage({super.key});
@@ -33,9 +34,10 @@ class _CommunityView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('社区'),
+        title: Text(l10n.community),
         automaticallyImplyLeading: false,
       ),
       body: BlocConsumer<CommunityBloc, CommunityState>(
@@ -134,18 +136,17 @@ class _PostItemState extends State<_PostItem> {
       builder: (context, snapshot) {
         if (_controller != null && _controller!.value.isInitialized) {
           return AspectRatio(
-            aspectRatio: _controller!.value.aspectRatio,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _controller!.value.isPlaying ? _controller!.pause() : _controller!.play();
-                });
-              },
-              child: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  VideoPlayer(_controller!),
-                  if (!_controller!.value.isPlaying)
+            aspectRatio: 16 / 9,
+            child: FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: _controller!.value.size.width,
+                height: _controller!.value.size.height,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    VideoPlayer(_controller!),
                     Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
@@ -154,12 +155,19 @@ class _PostItemState extends State<_PostItem> {
                       ),
                       child: const Icon(Iconsax.play, color: Colors.white, size: 48),
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
         } else {
-          return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+          return AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Container(
+              color: Colors.grey.shade200,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+          );
         }
       },
     );
@@ -191,13 +199,14 @@ class _PostItemState extends State<_PostItem> {
                 padding: const EdgeInsets.only(top: 12.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: CachedNetworkImage(
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: CachedNetworkImage(
                       imageUrl: widget.post.imageUrls.first,
-                      height: 150,
-                      width: double.infinity,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(color: Colors.grey.shade200),
                       errorWidget: (context, url, error) => Container(color: Colors.grey.shade200, child: const Icon(Icons.error, color: Colors.grey)),
+                    ),
                   ),
                 ),
               ),

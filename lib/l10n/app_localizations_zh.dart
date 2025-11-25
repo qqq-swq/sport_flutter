@@ -189,4 +189,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get enterPassword => '请输入密码';
+
+  @override
+  String get createPost => '发表新帖';
+
+  @override
+  String get title => '标题';
+
+  @override
+  String get content => '内容...';
+
+  @override
+  String get publish => '发表';
+
+  @override
+  String get replies => '回复';
+
+  @override
+  String get selectPicturesFromAlbum => '从相册选择图片';
+
+  @override
+  String get selectVideoFromAlbum => '从相册选择视频 (一次一个)';
+
+  @override
+  String fileLimitExceeded(int remainingSpace) {
+    return '超出数量限制！您还能选择 $remainingSpace 个文件。';
+  }
 }

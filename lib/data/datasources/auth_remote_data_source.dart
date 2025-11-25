@@ -13,7 +13,7 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final http.Client client;
-  static const String _baseUrl = 'http://192.168.4.140:3000/api/auth';
+  static const String _baseUrl = 'http://121.41.33.116:3030/api/auth';
 
   AuthRemoteDataSourceImpl({required this.client});
 
@@ -28,6 +28,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     };
   }
 
+  // Helper to handle error responses
+  Exception _handleError(http.Response response) {
+    try {
+      final errorBody = jsonDecode(response.body);
+      return Exception(errorBody['message'] ?? 'An unknown error occurred');
+    } catch (e) {
+      // If the body is not a valid JSON (e.g., HTML error page)
+      return Exception('Failed to connect to the server. Status code: ${response.statusCode}');
+    }
+  }
+
   @override
   Future<String> login(String username, String password) async {
     final response = await client.post(
@@ -39,8 +50,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final data = jsonDecode(response.body);
       return data['token'];
     } else {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
+      throw _handleError(response);
     }
   }
 
@@ -57,8 +67,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }),
     );
     if (response.statusCode != 201) {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
+      throw _handleError(response);
     }
   }
 
@@ -71,8 +80,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     if (response.statusCode != 200) {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
+      throw _handleError(response);
     }
   }
 
@@ -86,8 +94,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.statusCode == 200) {
       return UserModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
     } else {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
+      throw _handleError(response);
     }
   }
 
@@ -108,8 +115,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (response.statusCode == 200) {
       return UserModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
     } else {
-      final errorBody = jsonDecode(response.body);
-      throw Exception(errorBody['message'] ?? 'An unknown error occurred');
+      throw _handleError(response);
     }
   }
 }

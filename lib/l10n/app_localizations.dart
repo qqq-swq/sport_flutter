@@ -439,6 +439,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a password'**
   String get enterPassword;
+
+  /// No description provided for @createPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Post'**
+  String get createPost;
+
+  /// No description provided for @title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get title;
+
+  /// No description provided for @content.
+  ///
+  /// In en, this message translates to:
+  /// **'Content...'**
+  String get content;
+
+  /// No description provided for @publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get publish;
+
+  /// No description provided for @replies.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies'**
+  String get replies;
+
+  /// No description provided for @selectPicturesFromAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Select pictures from album'**
+  String get selectPicturesFromAlbum;
+
+  /// No description provided for @selectVideoFromAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'Select video from album (one at a time)'**
+  String get selectVideoFromAlbum;
+
+  /// No description provided for @fileLimitExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'File limit exceeded! You can still select {remainingSpace} more files.'**
+  String fileLimitExceeded(int remainingSpace);
 }
 
 class _AppLocalizationsDelegate

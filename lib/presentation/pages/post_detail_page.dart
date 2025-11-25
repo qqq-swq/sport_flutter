@@ -7,9 +7,9 @@ import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_input_field.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_section.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/post_header.dart';
+import 'package:sport_flutter/presentation/widgets/shimmer.dart';
 import 'package:iconsax/iconsax.dart';
 
-// FIX: Changed to StatefulWidget to fetch comments on init
 class PostDetailPage extends StatefulWidget {
   final CommunityPost post;
 
@@ -25,7 +25,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch comments for the given post when the page loads
     context.read<PostCommentBloc>().add(FetchPostComments(widget.post.id));
     context.read<RecommendedVideoBloc>().add(FetchRecommendedVideos());
   }
@@ -57,7 +56,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
             TextButton(
               child: const Text('删除', style: TextStyle(color: Colors.red)),
               onPressed: () {
-                // Use the existing context to find the BLoC
                 context.read<PostCommentBloc>().add(DeletePost(widget.post.id));
                 Navigator.of(dialogContext).pop();
               },
@@ -70,13 +68,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // REMOVED the local BlocProvider. The page now relies on the BLoC
-    // provided at the top of the widget tree in main.dart.
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.post.username),
         actions: [
-          // TODO: Replace 'wyy' with a real check for post ownership
           if (widget.post.username == 'wyy')
             IconButton(
               icon: const Icon(Iconsax.trash),
@@ -90,7 +85,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('帖子已成功删除'), duration: Duration(seconds: 1)),
             );
-            // Pop with a `true` result to signal the previous page to refresh.
             Navigator.of(context).pop(true);
           } else if (state is PostDeletionFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -104,11 +98,30 @@ class _PostDetailPageState extends State<PostDetailPage> {
               child: CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(child: PostHeader(post: widget.post)),
-                  const SliverToBoxAdapter(child: Padding(
+                  const SliverToBoxAdapter(
+                      child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     child: Text('评论', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   )),
-                  CommentSection(postId: widget.post.id, onReplyTapped: _onReplyTapped),
+                  BlocBuilder<PostCommentBloc, PostCommentState>(
+                    builder: (context, state) {
+                      if (state is PostCommentLoading) {
+                        // Use a SliverToBoxAdapter to embed the ShimmerLoading
+                        return const SliverToBoxAdapter(
+                          child: SizedBox(height: 400, child: ShimmerLoading()),
+                        );
+                      }
+                      if (state is PostCommentLoaded) {
+                        return CommentSection(postId: widget.post.id, onReplyTapped: _onReplyTapped);
+                      }
+                      if (state is PostCommentError) {
+                        return SliverToBoxAdapter(
+                          child: Center(child: Text('Error: ${state.message}')),
+                        );
+                      }
+                      return const SliverToBoxAdapter(child: SizedBox.shrink());
+                    },
+                  ),
                 ],
               ),
             ),

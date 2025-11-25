@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -171,7 +170,8 @@ class _CommentItem extends StatelessWidget {
         if (comment.likeCount > 0) Text(NumberFormat.compact().format(comment.likeCount), style: voteStyle),
         const SizedBox(width: 12),
 
-        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'dislike'))),
+        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.error : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'dislike'))),
+        if (comment.dislikeCount > 0) Text(NumberFormat.compact().format(comment.dislikeCount), style: voteStyle),
         const SizedBox(width: 12),
 
         IconButton(icon: Icon(Iconsax.message_text_1, size: 16, color: Colors.grey.shade600), onPressed: () => onReply(comment)),

@@ -31,9 +31,27 @@ class PostCommentModel {
 
   factory PostCommentModel.fromJson(Map<String, dynamic> json) {
     var createdAtString = json['createdAt'] as String;
+
+    // Handle non-standard 'ZZ' suffix from server if it exists
     if (createdAtString.endsWith('ZZ')) {
       createdAtString = createdAtString.substring(0, createdAtString.length - 1);
     }
+
+    // Parse the date string. If it lacks timezone info, it's treated as local time by default.
+    final parsedDt = DateTime.parse(createdAtString);
+
+    // Re-create the DateTime object as a UTC time. This corrects the timezone issue
+    // by telling Dart that the time values from the server represent UTC.
+    final createdAtUtc = DateTime.utc(
+      parsedDt.year,
+      parsedDt.month,
+      parsedDt.day,
+      parsedDt.hour,
+      parsedDt.minute,
+      parsedDt.second,
+      parsedDt.millisecond,
+      parsedDt.microsecond,
+    );
 
     return PostCommentModel(
       id: json['id'] as int,
@@ -43,7 +61,7 @@ class PostCommentModel {
       userAvatarUrl: json['userAvatarUrl'] as String?,
       likeCount: json['likeCount'] as int? ?? 0,
       dislikeCount: json['dislikeCount'] as int? ?? 0,
-      createdAt: DateTime.parse(createdAtString), // Keep as UTC
+      createdAt: createdAtUtc, // Assign the corrected UTC DateTime
       replyCount: json['replyCount'] as int? ?? 0,
       replies: (json['replies'] as List<dynamic>? ?? [])
           .map((replyJson) => PostCommentModel.fromJson(replyJson as Map<String, dynamic>))

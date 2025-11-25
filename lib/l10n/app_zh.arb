@@ -96,5 +96,23 @@
     "invalidUsernameOrPassword": "用户名或密码错误",
     "loginFailedTitle": "登录失败",
     "ok": "好的",
-    "enterPassword": "请输入密码"
+    "enterPassword": "请输入密码",
+
+    "createPost": "发表新帖",
+    "title": "标题",
+    "content": "内容...",
+    "publish": "发表",
+
+    "replies": "回复",
+
+    "selectPicturesFromAlbum": "从相册选择图片",
+    "selectVideoFromAlbum": "从相册选择视频 (一次一个)",
+    "fileLimitExceeded": "超出数量限制！您还能选择 {remainingSpace} 个文件。",
+    "@fileLimitExceeded": {
+        "placeholders": {
+            "remainingSpace": {
+                "type": "int"
+            }
+        }
+    }
 }

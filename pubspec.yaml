@@ -32,6 +32,7 @@ dependencies:
 
   # Formatting
   intl: ^0.20.2
+  timeago: ^3.7.1
 
   # Added for file picking and uploading
   image_picker: ^1.0.7
@@ -44,6 +45,12 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1 # Add this line
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon.png" # Make sure this path is correct
 
 flutter:
   uses-material-design: true

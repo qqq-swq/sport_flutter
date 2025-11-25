@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/community_bloc.dart';
 
 class CreatePostPage extends StatefulWidget {
@@ -30,26 +31,83 @@ class _CreatePostPageState extends State<CreatePostPage> {
     super.dispose();
   }
 
-  Future<void> _pickMedia() async {
+  Future<void> _showMediaPickerOptions() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedFiles.length >= 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('最多只能选择6个文件')),
+        SnackBar(content: Text(l10n.fileLimitExceeded(6))),
       );
       return;
     }
 
-    final picker = ImagePicker();
-    final pickedFiles = await picker.pickMultipleMedia(limit: 6 - _selectedFiles.length);
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: Text(l10n.selectPicturesFromAlbum),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _pickImages();
+                  }),
+              ListTile(
+                leading: const Icon(Icons.video_library),
+                title: Text(l10n.selectVideoFromAlbum),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _pickVideo();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-    if (pickedFiles.isNotEmpty) {
+  Future<void> _pickImages() async {
+    final l10n = AppLocalizations.of(context)!;
+    final picker = ImagePicker();
+    final pickedFiles = await picker.pickMultiImage(imageQuality: 80);
+
+    if (!mounted || pickedFiles.isEmpty) return;
+
+    final remainingSpace = 6 - _selectedFiles.length;
+    if (pickedFiles.length > remainingSpace) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.fileLimitExceeded(remainingSpace))),
+      );
+    }
+    
+    setState(() {
+      _selectedFiles.addAll(pickedFiles.take(remainingSpace).map((file) => File(file.path)));
+    });
+  }
+
+  Future<void> _pickVideo() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (_selectedFiles.length >= 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.fileLimitExceeded(6))),
+      );
+      return;
+    }
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
       setState(() {
-        _selectedFiles.addAll(pickedFiles.map((file) => File(file.path)));
+        _selectedFiles.add(File(pickedFile.path));
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bool canPost = _titleController.text.isNotEmpty && _contentController.text.isNotEmpty;
 
     return BlocListener<CommunityBloc, CommunityState>(
@@ -60,7 +118,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('发表新帖'),
+          title: Text(l10n.createPost),
           actions: [
             BlocBuilder<CommunityBloc, CommunityState>(
               builder: (context, state) {
@@ -84,7 +142,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                     ),
                     child: isSubmitting
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('发表'),
+                        : Text(l10n.publish),
                   ),
                 );
               },
@@ -99,15 +157,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
               TextField(
                 controller: _titleController,
                 style: Theme.of(context).textTheme.headlineSmall,
-                decoration: const InputDecoration.collapsed(
-                  hintText: '标题',
+                decoration: InputDecoration.collapsed(
+                  hintText: l10n.title,
                 ),
               ),
               const Divider(height: 32),
               TextField(
                 controller: _contentController,
-                decoration: const InputDecoration.collapsed(
-                  hintText: '内容...',
+                decoration: InputDecoration.collapsed(
+                  hintText: l10n.content,
                 ),
                 maxLines: 10,
               ),
@@ -133,13 +191,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
       itemBuilder: (context, index) {
         if (index == _selectedFiles.length && _selectedFiles.length < 6) {
           return GestureDetector(
-            onTap: _pickMedia,
+            onTap: _showMediaPickerOptions,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.add_a_photo_outlined, size: 48, color: Colors.black54),
+              child: const Icon(Icons.add_photo_alternate_outlined, size: 48, color: Colors.black54),
             ),
           );
         }
@@ -152,7 +210,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 height: double.infinity,
                 child: isImage

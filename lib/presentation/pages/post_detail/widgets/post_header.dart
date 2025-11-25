@@ -42,45 +42,49 @@ class _PostHeaderState extends State<PostHeader> {
       builder: (context, snapshot) {
         if (_controller != null && _controller!.value.isInitialized) {
           return AspectRatio(
-            aspectRatio: _controller!.value.aspectRatio,
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                // This GestureDetector is for the fullscreen navigation.
-                // It's transparent and covers the whole area.
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => FullScreenMediaViewer(
-                        mediaUrls: widget.post.videoUrls,
-                        initialIndex: 0,
-                      ),
-                    ));
-                  },
-                  child: VideoPlayer(_controller!),
-                ),
-                // This GestureDetector is only for the play/pause icon.
-                // It sits on top of the other detector.
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _controller!.value.isPlaying ? _controller!.pause() : _controller!.play();
-                    });
-                  },
-                  child: AnimatedOpacity(
-                    opacity: _controller!.value.isPlaying ? 0.0 : 1.0,
-                    duration: const Duration(milliseconds: 300),
-                    child: Container(
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Iconsax.play, color: Colors.white, size: 48),
+            aspectRatio: 16 / 9,
+            child: FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: _controller!.value.size.width,
+                height: _controller!.value.size.height,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => FullScreenMediaViewer(
+                            mediaUrls: widget.post.videoUrls,
+                            initialIndex: 0,
+                          ),
+                        ));
+                      },
+                      child: VideoPlayer(_controller!),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _controller!.value.isPlaying ? _controller!.pause() : _controller!.play();
+                        });
+                      },
+                      child: AnimatedOpacity(
+                        opacity: _controller!.value.isPlaying ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Iconsax.play, color: Colors.white, size: 48),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           );
         } else {
@@ -121,7 +125,6 @@ class _PostHeaderState extends State<PostHeader> {
               padding: const EdgeInsets.only(top: 12.0),
               child: _MediaGallery(imageUrls: widget.post.imageUrls),
             ),
-          // The video preview area now handles its own gestures.
           if (widget.post.videoUrls.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 12.0),
@@ -183,11 +186,14 @@ class _MediaGalleryState extends State<_MediaGallery> {
         },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
-          child: CachedNetworkImage(
-            imageUrl: widget.imageUrls.first,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Container(color: Colors.grey.shade200, height: 250),
-            errorWidget: (context, url, error) => Container(color: Colors.grey.shade200, child: const Icon(Icons.error, color: Colors.grey)),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: CachedNetworkImage(
+              imageUrl: widget.imageUrls.first,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(color: Colors.grey.shade200),
+              errorWidget: (context, url, error) => Container(color: Colors.grey.shade200, child: const Icon(Icons.error, color: Colors.grey)),
+            ),
           ),
         ),
       );
