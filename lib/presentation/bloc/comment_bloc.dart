@@ -170,7 +170,6 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
 
     final optimisticComment = originalComment.copyWith(
       userVote: optimisticUserVote,
-      clearUserVote: isCancelling,
       likeCount: optimisticLikeCount,
       dislikeCount: optimisticDislikeCount,
     );

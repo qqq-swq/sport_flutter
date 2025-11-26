@@ -32,6 +32,10 @@ class PostCommentModel {
   });
 
   factory PostCommentModel.fromJson(Map<String, dynamic> json) {
+    // --- DIAGNOSTIC PRINT ---
+    // This will print the raw value from the server to the console.
+    print('<<< RAW createdAt FROM SERVER: ${json['createdAt']} >>>');
+
     var createdAtString = json['createdAt'] as String;
 
     // Handle non-standard 'ZZ' suffix from server if it exists

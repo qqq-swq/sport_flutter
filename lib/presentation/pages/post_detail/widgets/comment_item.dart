@@ -113,7 +113,7 @@ class CommentItem extends StatelessWidget {
         if (comment.likeCount > 0) Text(comment.likeCount.toString(), style: voteStyle),
         const SizedBox(width: 12),
         IconButton(
-          icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.secondary : Colors.grey),
+          icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? Colors.red : Colors.grey),
           onPressed: () => bloc.add(DislikeComment(comment.id)),
         ),
         if (comment.dislikeCount > 0) Text(comment.dislikeCount.toString(), style: voteStyle),

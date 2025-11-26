@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
+import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_input_field.dart';
@@ -42,19 +43,20 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   void _showDeleteConfirmationDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('删除帖子'),
-          content: const Text('您确定要删除这个帖子吗？此操作无法撤销。'),
+          title: Text(l10n.deletePost),
+          content: Text(l10n.deletePostConfirmation),
           actions: <Widget>[
             TextButton(
-              child: const Text('取消'),
+              child: Text(l10n.cancel),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
             TextButton(
-              child: const Text('删除', style: TextStyle(color: Colors.red)),
+              child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
               onPressed: () {
                 context.read<PostCommentBloc>().add(DeletePost(widget.post.id));
                 Navigator.of(dialogContext).pop();
@@ -98,10 +100,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
               child: CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(child: PostHeader(post: widget.post)),
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                       child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Text('评论', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(AppLocalizations.of(context)!.comments, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   )),
                   BlocBuilder<PostCommentBloc, PostCommentState>(
                     builder: (context, state) {

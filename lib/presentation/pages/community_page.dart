@@ -63,7 +63,8 @@ class _CommunityView extends StatelessWidget {
               child: ListView.separated(
                 itemCount: state.posts.length,
                 itemBuilder: (context, index) {
-                  return _PostItem(post: state.posts[index]);
+                  final post = state.posts[index];
+                  return _PostItem(key: ValueKey(post.id), post: post);
                 },
                 separatorBuilder: (context, index) => const Divider(height: 1, indent: 16, endIndent: 16),
               ),
@@ -103,7 +104,7 @@ class _CommunityView extends StatelessWidget {
 
 class _PostItem extends StatefulWidget {
   final CommunityPost post;
-  const _PostItem({required this.post});
+  const _PostItem({super.key, required this.post});
   @override
   State<_PostItem> createState() => _PostItemState();
 }

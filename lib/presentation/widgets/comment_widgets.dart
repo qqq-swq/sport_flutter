@@ -182,7 +182,7 @@ class _CommentItem extends StatelessWidget {
         if (comment.likeCount > 0) Text(NumberFormat.compact().format(comment.likeCount), style: voteStyle),
         const SizedBox(width: 12),
 
-        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? colorScheme.error : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'dislike'))),
+        IconButton(icon: Icon(Iconsax.dislike, size: 16, color: comment.userVote == 'dislike' ? Colors.red : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'dislike'))),
         if (comment.dislikeCount > 0) Text(NumberFormat.compact().format(comment.dislikeCount), style: voteStyle),
         const SizedBox(width: 12),
 

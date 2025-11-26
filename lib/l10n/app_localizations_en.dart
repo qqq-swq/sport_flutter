@@ -255,4 +255,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String commentDetails(int count) {
     return 'Comment Details ($count)';
   }
+
+  @override
+  String get deletePost => 'Delete Post';
+
+  @override
+  String get deletePostConfirmation =>
+      'Are you sure you want to delete this post? This action cannot be undone.';
+
+  @override
+  String get delete => 'Delete';
 }
