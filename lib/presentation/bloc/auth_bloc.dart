@@ -128,7 +128,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await sendCodeUseCase(event.email);
       emit(AuthCodeSent());
     } catch (e) {
-      emit(AuthError((e as Exception).toString()));
+      emit(const AuthError('验证码发送失败，请稍后重试。'));
     }
   }
 
@@ -138,7 +138,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await registerUseCase(event.username, event.email, event.password, event.code);
       emit(AuthRegistrationSuccess());
     } catch (e) {
-      emit(AuthError((e as Exception).toString()));
+      emit(const AuthError('注册失败，请检查您的输入。'));
     }
   }
 
@@ -151,7 +151,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await getUserProfileUseCase();
       emit(AuthAuthenticated(user: user));
     } catch (e) {
-      emit(AuthError((e as Exception).toString()));
+      emit(const AuthError('登录失败，请检查您的用户名和密码。'));
     }
   }
 
@@ -171,7 +171,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthAuthenticated(user: updatedUser));
     } catch (e) {
-      emit(AuthError((e as Exception).toString()));
+      emit(const AuthError('更新个人资料失败。'));
     }
   }
 }
