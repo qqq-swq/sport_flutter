@@ -11,7 +11,14 @@ abstract class RecommendedVideoEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class FetchRecommendedVideos extends RecommendedVideoEvent {}
+class FetchRecommendedVideos extends RecommendedVideoEvent {
+  final bool isRefresh;
+
+  const FetchRecommendedVideos({this.isRefresh = false});
+
+  @override
+  List<Object> get props => [isRefresh];
+}
 
 // States
 abstract class RecommendedVideoState extends Equatable {
@@ -55,12 +62,14 @@ class RecommendedVideoBloc extends Bloc<RecommendedVideoEvent, RecommendedVideoS
     FetchRecommendedVideos event,
     Emitter<RecommendedVideoState> emit,
   ) async {
-    emit(RecommendedVideoLoading());
-    try {
-      final videos = await getRecommendedVideos();
-      emit(RecommendedVideoLoaded(videos));
-    } catch (e) {
-      emit(RecommendedVideoError(e.toString()));
-    }
+    if (event.isRefresh || state is! RecommendedVideoLoaded) {
+      emit(RecommendedVideoLoading());
+      try {
+        final videos = await getRecommendedVideos();
+        emit(RecommendedVideoLoaded(videos));
+      } catch (e) {
+        emit(RecommendedVideoError(e.toString()));
+      }
+    } 
   }
 }

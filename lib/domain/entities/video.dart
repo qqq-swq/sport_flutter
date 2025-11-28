@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 class Video extends Equatable {
   final int id;
   final String title;
+  final String? description;
   final String videoUrl;
   final String thumbnailUrl;
   final String authorName;
@@ -15,6 +16,7 @@ class Video extends Equatable {
   const Video({
     required this.id,
     required this.title,
+    this.description,
     required this.videoUrl,
     required this.thumbnailUrl,
     required this.authorName,
@@ -28,6 +30,7 @@ class Video extends Equatable {
   Video copyWith({
     int? id,
     String? title,
+    String? description,
     String? videoUrl,
     String? thumbnailUrl,
     String? authorName,
@@ -40,6 +43,7 @@ class Video extends Equatable {
     return Video(
       id: id ?? this.id,
       title: title ?? this.title,
+      description: description ?? this.description,
       videoUrl: videoUrl ?? this.videoUrl,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       authorName: authorName ?? this.authorName,
@@ -52,5 +56,5 @@ class Video extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, title, videoUrl, thumbnailUrl, authorName, userAvatarUrl, viewCount, likeCount, createdAt, isFavorited];
+  List<Object?> get props => [id, title, description, videoUrl, thumbnailUrl, authorName, userAvatarUrl, viewCount, likeCount, createdAt, isFavorited];
 }

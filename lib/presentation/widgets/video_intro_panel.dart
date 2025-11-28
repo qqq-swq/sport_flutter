@@ -5,7 +5,7 @@ import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/widgets/video_action_buttons.dart';
 import 'package:iconsax/iconsax.dart';
 
-class VideoIntroPanel extends StatelessWidget {
+class VideoIntroPanel extends StatefulWidget {
   final Video currentVideo;
   final List<Video> recommendedVideos;
   final bool isLiked;
@@ -32,6 +32,13 @@ class VideoIntroPanel extends StatelessWidget {
   });
 
   @override
+  State<VideoIntroPanel> createState() => _VideoIntroPanelState();
+}
+
+class _VideoIntroPanelState extends State<VideoIntroPanel> {
+  bool _isExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return CustomScrollView(
@@ -44,22 +51,24 @@ class VideoIntroPanel extends StatelessWidget {
               children: [
                 _buildAuthorInfo(context),
                 const SizedBox(height: 12),
-                Text(currentVideo.title, style: Theme.of(context).textTheme.headlineSmall),
+                Text(widget.currentVideo.title, style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 8),
+                _buildDescriptionSection(context),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.videoViews(currentVideo.viewCount, _formatDate(context, currentVideo.createdAt)),
+                  l10n.videoViews(widget.currentVideo.viewCount, _formatDate(context, widget.currentVideo.createdAt)),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                 ),
                 const SizedBox(height: 16),
                 VideoActionButtons(
-                  isLiked: isLiked,
-                  isDisliked: isDisliked,
-                  isFavorited: isFavorited,
-                  isInteracting: isInteracting,
-                  likeCount: currentVideo.likeCount,
-                  onLike: onLike,
-                  onDislike: onDislike,
-                  onFavorite: onFavorite,
+                  isLiked: widget.isLiked,
+                  isDisliked: widget.isDisliked,
+                  isFavorited: widget.isFavorited,
+                  isInteracting: widget.isInteracting,
+                  likeCount: widget.currentVideo.likeCount,
+                  onLike: widget.onLike,
+                  onDislike: widget.onDislike,
+                  onFavorite: widget.onFavorite,
                 ),
                 const Divider(height: 32),
                 Text(l10n.upNext, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -70,30 +79,79 @@ class VideoIntroPanel extends StatelessWidget {
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (c, i) {
-              final v = recommendedVideos[i];
-              if (v.id == currentVideo.id) return const SizedBox.shrink();
+              final v = widget.recommendedVideos[i];
+              if (v.id == widget.currentVideo.id) return const SizedBox.shrink();
               return _buildRecommendedItem(c, v);
             },
-            childCount: recommendedVideos.length,
+            childCount: widget.recommendedVideos.length,
           ),
         )
       ],
     );
   }
 
+  Widget _buildDescriptionSection(BuildContext context) {
+    final description = widget.currentVideo.description;
+    if (description == null || description.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final textStyle = Theme.of(context).textTheme.bodyMedium!;
+    final l10n = AppLocalizations.of(context)!;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textSpan = TextSpan(text: description, style: textStyle);
+        final textPainter = TextPainter(
+          text: textSpan,
+          maxLines: 2,
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout(maxWidth: constraints.maxWidth);
+
+        if (textPainter.didExceedMaxLines) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                description,
+                style: textStyle,
+                maxLines: _isExpanded ? null : 2,
+                overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              ),
+              GestureDetector(
+                onTap: () => setState(() => _isExpanded = !_isExpanded),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    _isExpanded ? l10n.showLess : l10n.showMore,
+                    style: textStyle.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else {
+          return Text(description, style: textStyle);
+        }
+      },
+    );
+  }
+
+
   Widget _buildAuthorInfo(BuildContext context) {
     return Row(
       children: [
         CircleAvatar(
-          backgroundImage: currentVideo.userAvatarUrl != null && currentVideo.userAvatarUrl!.isNotEmpty
-              ? NetworkImage(currentVideo.userAvatarUrl!)
+          backgroundImage: widget.currentVideo.userAvatarUrl != null && widget.currentVideo.userAvatarUrl!.isNotEmpty
+              ? NetworkImage(widget.currentVideo.userAvatarUrl!)
               : null,
-          child: currentVideo.userAvatarUrl == null || currentVideo.userAvatarUrl!.isEmpty
+          child: widget.currentVideo.userAvatarUrl == null || widget.currentVideo.userAvatarUrl!.isEmpty
               ? const Icon(Iconsax.profile)
               : null,
         ),
         const SizedBox(width: 12),
-        Expanded(child: Text(currentVideo.authorName, style: Theme.of(context).textTheme.titleMedium)),
+        Expanded(child: Text(widget.currentVideo.authorName, style: Theme.of(context).textTheme.titleMedium)),
         const SizedBox.shrink(),
       ],
     );
@@ -103,7 +161,7 @@ class VideoIntroPanel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: InkWell(
-        onTap: () => onChangeVideo(video),
+        onTap: () => widget.onChangeVideo(video),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -28,7 +28,6 @@ class VideoGridPage extends StatefulWidget {
 
 class _VideoGridPageState extends State<VideoGridPage> {
   late final VideoBloc _videoBloc;
-  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -44,29 +43,12 @@ class _VideoGridPageState extends State<VideoGridPage> {
       unfavoriteVideo: unfavoriteVideoUseCase,
       cacheManager: cacheManager,
     )..add(FetchVideos(widget.difficulty));
-
-    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
     _videoBloc.close();
     super.dispose();
-  }
-
-  void _onScroll() {
-    if (_isBottom) {
-      _videoBloc.add(FetchVideos(widget.difficulty));
-    }
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
@@ -84,7 +66,6 @@ class _VideoGridPageState extends State<VideoGridPage> {
                 return const Center(child: Text('No videos found.'));
               }
               return GridView.builder(
-                controller: _scrollController,
                 padding: const EdgeInsets.all(8.0),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -92,11 +73,8 @@ class _VideoGridPageState extends State<VideoGridPage> {
                   mainAxisSpacing: 8.0,
                   childAspectRatio: 0.75,
                 ),
-                itemCount: state.hasReachedMax ? state.videos.length : state.videos.length + 1,
+                itemCount: state.videos.length,
                 itemBuilder: (context, index) {
-                  if (index >= state.videos.length) {
-                    return const SizedBox.shrink();
-                  }
                   final video = state.videos[index];
                   return _GridItem(video: video);
                 },

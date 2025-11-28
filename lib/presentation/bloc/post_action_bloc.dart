@@ -58,7 +58,7 @@ class PostActionBloc extends Bloc<PostActionEvent, PostActionState> {
   Future<void> _onDeletePost(DeletePost event, Emitter<PostActionState> emit) async {
     try {
       await deleteCommunityPost(event.postId);
-      emit(PostDeletionSuccess());
+      emit(PostDeletionSuccessAndRefresh());
     } catch (e) {
       emit(PostActionFailure('Failed to delete post: $e'));
     }

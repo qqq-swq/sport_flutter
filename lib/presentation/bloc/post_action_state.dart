@@ -19,6 +19,8 @@ class PostFavoriteSuccess extends PostActionState {
 
 class PostDeletionSuccess extends PostActionState {}
 
+class PostDeletionSuccessAndRefresh extends PostActionState {}
+
 class PostActionFailure extends PostActionState {
   final String message;
   PostActionFailure(this.message);

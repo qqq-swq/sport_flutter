@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sport_flutter/data/datasources/auth_remote_data_source.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
+import 'package:sport_flutter/domain/usecases/get_video_by_id.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/comment_bloc.dart';
@@ -51,12 +52,15 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   void initState() {
     super.initState();
     _currentVideo = widget.video;
-    _isFavorited = widget.video.isFavorited;
     _commentBloc = CommentBloc();
+    _initializePlayer(_currentVideo.videoUrl);
+    
+    // Fetch full details upon initialization
+    _fetchFullVideoDetails(); 
+    
+    // These can be triggered immediately
     _commentBloc.add(FetchComments(_currentVideo.id));
     context.read<RecommendedVideoBloc>().add(FetchRecommendedVideos());
-    _initializePlayer(_currentVideo.videoUrl);
-    _fetchInitialStatus();
   }
 
   @override
@@ -68,6 +72,58 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       _exitFullScreen();
     }
     super.dispose();
+  }
+  
+  Future<void> _fetchFullVideoDetails({int? videoId}) async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+    
+    try {
+      final idToFetch = videoId ?? widget.video.id;
+      final fullVideo = await context.read<GetVideoById>()(idToFetch);
+      
+      if (mounted) {
+        setState(() {
+          _currentVideo = fullVideo;
+          _isFavorited = fullVideo.isFavorited;
+        });
+        // After getting the main video data, get user-specific status
+        await _fetchInteractiveStatus();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load full video details: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _fetchInteractiveStatus() async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.get(
+        Uri.parse('$_apiBaseUrl/videos/${_currentVideo.id}/status'),
+        headers: headers,
+      );
+      if (response.statusCode == 200 && mounted) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _isLiked = data['isLikedByUser'] ?? false;
+          _isDisliked = data['isDislikedByUser'] ?? false;
+          // We trust the isFavorited from the main video object more, but can update likeCount
+           _currentVideo = _currentVideo.copyWith(
+            likeCount: data['like_count'] ?? _currentVideo.likeCount,
+          );
+        });
+      }
+    } catch (_) {
+      // Silently fail or log error, as this is non-critical data
+    }
   }
 
   Future<Map<String, String>> _getAuthHeaders() async {
@@ -94,50 +150,18 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     await _controller.dispose();
     setState(() {
       _currentVideo = newVideo;
-      _isFavorited = newVideo.isFavorited;
-      _viewRecorded = false;
-      _isLiked = false;
-      _isDisliked = false;
       _isLoading = true;
+      _viewRecorded = false;
     });
 
     _initializePlayer(newVideo.videoUrl);
-    await _fetchInitialStatus();
     _commentBloc.add(FetchComments(newVideo.id));
-  }
-
-  Future<void> _fetchInitialStatus() async {
-    setState(() => _isLoading = true);
-    try {
-      final headers = await _getAuthHeaders();
-      final response = await http.get(
-        Uri.parse('$_apiBaseUrl/videos/${_currentVideo.id}/status'),
-        headers: headers,
-      );
-      if (response.statusCode == 200 && mounted) {
-        final data = jsonDecode(response.body);
-        final isLiked = data['isLikedByUser'] ?? false;
-        final isDisliked = data['isDislikedByUser'] ?? false;
-        final isFavorited = data['isFavorited'] ?? false;
-
-        setState(() {
-          _currentVideo = _currentVideo.copyWith(
-            likeCount: data['like_count'] ?? _currentVideo.likeCount,
-          );
-          _isLiked = isLiked;
-          _isDisliked = isDisliked;
-          _isFavorited = isFavorited;
-        });
-      }
-    } catch (_) {
-      // Handle error
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    await _fetchFullVideoDetails(videoId: newVideo.id);
   }
 
   void _videoListener() {
     if (!_viewRecorded &&
+        _controller.value.isInitialized &&
         !_controller.value.hasError &&
         _controller.value.position >= _controller.value.duration) {
       _recordView();
@@ -153,7 +177,7 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         headers: headers,
       );
     } catch (_) {
-      // Handle error
+      // Handle error silently
     }
   }
 
@@ -221,7 +245,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       }
     }
 
-    // 乐观更新UI，立即响应用户操作
     setState(() {
       _isLiked = newIsLiked;
       _isDisliked = newIsDisliked;
@@ -235,15 +258,11 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         headers: headers,
       );
       
-      // 请求成功后，我们信任前端的乐观更新，不再根据服务器返回的数据二次刷新UI。
-      // 这样做可以完全避免因网络延迟或服务器状态与客户端不一致导致的界面闪烁问题。
-      // 只有在请求失败时，才需要将UI回滚到操作前的状态。
       if (response.statusCode != 200) {
         throw Exception('Failed to perform vote action: ${response.statusCode}');
       }
     } catch (_) {
       if (mounted) {
-        // 网络请求失败或出错，回滚UI到操作前的状态
         setState(() {
           _isLiked = previousIsLiked;
           _isDisliked = previousIsDisliked;

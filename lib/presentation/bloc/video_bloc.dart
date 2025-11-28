@@ -14,10 +14,8 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   final UnfavoriteVideo unfavoriteVideo;
   final CacheManager cacheManager;
 
-  int _page = 1;
   Difficulty _currentDifficulty = Difficulty.Easy;
   List<Video> _videos = [];
-  bool _hasReachedMax = false;
   final Map<int, double> _visibilityMap = {};
 
   VideoBloc({
@@ -87,34 +85,14 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
   }
 
   Future<void> _onFetchVideos(FetchVideos event, Emitter<VideoState> emit) async {
-    if (event.difficulty != _currentDifficulty) {
-      _page = 1;
-      _videos = [];
-      _hasReachedMax = false;
-      _visibilityMap.clear();
-      _currentDifficulty = event.difficulty;
-      emit(VideoLoading());
-    } else if (_hasReachedMax || state is VideoLoading) {
-      return;
-    }
-
+    emit(VideoLoading());
     try {
-      final newVideos = await getVideos(difficulty: _currentDifficulty, page: _page);
-
-      if (newVideos.isEmpty) {
-        _hasReachedMax = true;
-      } else {
-        _page++;
-        _videos.addAll(newVideos);
-      }
-
+      _videos = await getVideos(difficulty: event.difficulty);
       emit(VideoLoaded(
         videos: List.of(_videos),
-        hasReachedMax: _hasReachedMax,
-        activeVideoId: (state is VideoLoaded) ? (state as VideoLoaded).activeVideoId : null,
       ));
     } catch (e) {
-      emit(VideoError(e.toString()));
+      emit(VideoError('Failed to fetch videos: $e'));
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/domain/repositories/video_repository.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
+import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
@@ -26,6 +27,7 @@ class VideosPage extends StatefulWidget {
 
 class _VideosPageState extends State<VideosPage> with RouteAware {
   late final List<VideoBloc> _videoBlocs;
+  late final RecommendedVideoBloc _recommendedVideoBloc;
   bool _didInit = false;
 
   @override
@@ -37,6 +39,7 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
       final favoriteVideoUseCase = FavoriteVideo(videoRepository);
       final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
       final cacheManager = RepositoryProvider.of<CacheManager>(context);
+      final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
 
       _videoBlocs = List.generate(3, (i) {
         final bloc = VideoBloc(
@@ -49,8 +52,9 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
         return bloc;
       });
 
-      // RecommendedVideoBloc is now provided globally, so we fetch it here.
-      context.read<RecommendedVideoBloc>().add(FetchRecommendedVideos());
+      _recommendedVideoBloc = RecommendedVideoBloc(
+        getRecommendedVideos: getRecommendedVideosUseCase,
+      )..add(FetchRecommendedVideos());
 
       _didInit = true;
     }
@@ -63,6 +67,7 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
     for (final bloc in _videoBlocs) {
       bloc.close();
     }
+    _recommendedVideoBloc.close();
     super.dispose();
   }
 
@@ -76,23 +81,26 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sport Videos'),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_didInit) const _VideoCarousel(),
-            const SizedBox(height: 24),
-            if (_didInit)
-              ...[
-                _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
-                _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
-                _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
-              ]
-          ],
+    return BlocProvider.value(
+      value: _recommendedVideoBloc,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.sportVideos),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_didInit) const _VideoCarousel(),
+              const SizedBox(height: 24),
+              if (_didInit)
+                ...[
+                  _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
+                  _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
+                  _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
+                ]
+            ],
+          ),
         ),
       ),
     );
@@ -199,7 +207,7 @@ class _VideoCarouselState extends State<_VideoCarousel> {
 }
 
 // --- Horizontal Video Section Widget (Refactored) ---
-class _VideoSection extends StatefulWidget {
+class _VideoSection extends StatelessWidget {
   final String title;
   final Difficulty difficulty;
   final VideoBloc bloc;
@@ -211,50 +219,17 @@ class _VideoSection extends StatefulWidget {
   });
 
   @override
-  _VideoSectionState createState() => _VideoSectionState();
-}
-
-class _VideoSectionState extends State<_VideoSection> {
-  final _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_isEnd) {
-      widget.bloc.add(FetchVideos(widget.difficulty));
-    }
-  }
-
-  bool get _isEnd {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll * 0.9);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: widget.bloc,
+      value: bloc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           InkWell(
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => VideoGridPage(
-                title: widget.title,
-                difficulty: widget.difficulty,
+                title: title,
+                difficulty: difficulty,
               ),
             )),
             child: Padding(
@@ -263,7 +238,7 @@ class _VideoSectionState extends State<_VideoSection> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.title,
+                    title,
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const Icon(Icons.arrow_forward_ios, size: 16),
@@ -280,13 +255,9 @@ class _VideoSectionState extends State<_VideoSection> {
                     return const Center(child: Text('No videos found.'));
                   }
                   return ListView.builder(
-                    controller: _scrollController,
                     scrollDirection: Axis.horizontal,
-                    itemCount: state.hasReachedMax ? state.videos.length : state.videos.length + 1,
+                    itemCount: state.videos.length,
                     itemBuilder: (context, index) {
-                      if (index >= state.videos.length) {
-                        return const SizedBox.shrink();
-                      }
                       return _VideoThumbnailCard(video: state.videos[index]);
                     },
                   );

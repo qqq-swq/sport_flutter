@@ -7,9 +7,9 @@ enum Difficulty {
 }
 
 abstract class VideoRepository {
+  Future<Video> getVideoById(int id);
   Future<List<Video>> getVideos({
     required Difficulty difficulty,
-    required int page,
   });
   Future<void> favoriteVideo(int videoId);
   Future<void> unfavoriteVideo(int videoId);

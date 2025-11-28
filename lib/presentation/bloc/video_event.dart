@@ -10,11 +10,12 @@ abstract class VideoEvent extends Equatable {
 
 class FetchVideos extends VideoEvent {
   final Difficulty difficulty;
+  final bool isRefresh;
 
-  const FetchVideos(this.difficulty);
+  const FetchVideos(this.difficulty, {this.isRefresh = false});
 
   @override
-  List<Object> get props => [difficulty];
+  List<Object> get props => [difficulty, isRefresh];
 }
 
 class PausePlayback extends VideoEvent {

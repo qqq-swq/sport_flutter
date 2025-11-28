@@ -7,9 +7,9 @@ import 'package:sport_flutter/domain/repositories/video_repository.dart';
 import 'auth_remote_data_source.dart';
 
 abstract class VideoRemoteDataSource {
+  Future<VideoModel> getVideoById(int id);
   Future<List<VideoModel>> getVideos({
     required Difficulty difficulty,
-    required int page,
   });
   Future<void> favoriteVideo(int videoId);
   Future<void> unfavoriteVideo(int videoId);
@@ -33,17 +33,32 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
   }
 
   @override
-  Future<List<VideoModel>> getVideos({
-    required Difficulty difficulty,
-    required int page,
-  }) async {
+  Future<VideoModel> getVideoById(int id) async {
     final headers = await _getAuthHeaders();
     final response = await client.get(
-      Uri.parse('$_baseUrl/videos?difficulty=${difficulty.name}&page=$page&limit=5'),
+      Uri.parse('$_baseUrl/videos/$id'),
       headers: headers,
     );
 
-    // --- 诊断日志 ---
+    print('GET /videos/$id RAW RESPONSE: ${response.body}');
+
+    if (response.statusCode == 200) {
+      return VideoModel.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load video detail');
+    }
+  }
+
+  @override
+  Future<List<VideoModel>> getVideos({
+    required Difficulty difficulty,
+  }) async {
+    final headers = await _getAuthHeaders();
+    final response = await client.get(
+      Uri.parse('$_baseUrl/videos?difficulty=${difficulty.name}&limit=100'),
+      headers: headers,
+    );
+
     print('GET /videos RAW RESPONSE for ${difficulty.name}: ${response.body}');
 
     if (response.statusCode == 200) {
@@ -87,6 +102,8 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
       headers: headers,
     );
 
+    print('GET /videos/favorites RAW RESPONSE: ${response.body}');
+
     if (response.statusCode == 200) {
       final List<dynamic> videoList = json.decode(response.body);
       return videoList.map((json) => VideoModel.fromJson(json)).toList();
@@ -101,7 +118,6 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
       Uri.parse('$_baseUrl/videos/recommended'),
     );
 
-    // --- 诊断日志 ---
     print('GET /videos/recommended RAW RESPONSE: ${response.body}');
 
     if (response.statusCode == 200) {

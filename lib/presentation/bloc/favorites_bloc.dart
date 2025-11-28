@@ -68,7 +68,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       final videos = await getFavoriteVideos();
       emit(FavoritesLoaded(videos));
     } catch (e) {
-      emit(FavoritesError(e.toString()));
+      emit(const FavoritesError('加载收藏列表失败，请稍后重试。'));
     }
   }
 

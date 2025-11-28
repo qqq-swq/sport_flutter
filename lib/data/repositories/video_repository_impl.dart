@@ -8,14 +8,15 @@ class VideoRepositoryImpl implements VideoRepository {
   VideoRepositoryImpl({required this.remoteDataSource});
 
   @override
+  Future<Video> getVideoById(int id) async {
+    return await remoteDataSource.getVideoById(id);
+  }
+
+  @override
   Future<List<Video>> getVideos({
     required Difficulty difficulty,
-    required int page,
   }) async {
-    // The client-side batching logic was incorrect and has been removed.
-    // The avatar loading delay is a backend issue and must be solved by ensuring
-    // the /videos API endpoint returns the complete user information.
-    return await remoteDataSource.getVideos(difficulty: difficulty, page: page);
+    return await remoteDataSource.getVideos(difficulty: difficulty);
   }
 
   @override

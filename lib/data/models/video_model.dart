@@ -4,6 +4,7 @@ class VideoModel extends Video {
   const VideoModel({
     required super.id,
     required super.title,
+    super.description,
     required super.videoUrl,
     required super.thumbnailUrl,
     required super.authorName,
@@ -27,6 +28,8 @@ class VideoModel extends Video {
     return VideoModel(
       id: json['id'] ?? 0,
       title: json['title'] ?? 'Untitled Video',
+      // Attempt to parse description with multiple possible keys for robustness
+      description: json['description'] ?? json['Description'] ?? json['desc'],
       videoUrl: json['video_url'] ?? '',
       thumbnailUrl: json['thumbnail_url'] ?? '',
       authorName: authorName,

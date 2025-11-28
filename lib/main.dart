@@ -33,6 +33,7 @@ import 'package:sport_flutter/domain/usecases/send_verification_code.dart';
 import 'package:sport_flutter/domain/usecases/get_user_profile.dart';
 import 'package:sport_flutter/domain/usecases/update_user_profile.dart';
 import 'package:sport_flutter/domain/usecases/get_videos.dart';
+import 'package:sport_flutter/domain/usecases/get_video_by_id.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/domain/usecases/get_favorite_videos.dart';
@@ -95,6 +96,7 @@ void main() async {
   final getUserProfileUseCase = GetUserProfile(authRepository);
   final updateUserProfileUseCase = UpdateUserProfile(authRepository);
   final getVideosUseCase = GetVideos(videoRepository);
+  final getVideoByIdUseCase = GetVideoById(videoRepository);
   final favoriteVideoUseCase = FavoriteVideo(videoRepository);
   final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
   final getFavoriteVideosUseCase = GetFavoriteVideos(videoRepository);
@@ -125,6 +127,7 @@ void main() async {
         RepositoryProvider.value(value: ossUploadService),
         RepositoryProvider.value(value: videoCacheManager),
         RepositoryProvider.value(value: getVideosUseCase),
+        RepositoryProvider.value(value: getVideoByIdUseCase),
         RepositoryProvider.value(value: getCommunityPostsUseCase),
         RepositoryProvider.value(value: createCommunityPostUseCase),
         RepositoryProvider.value(value: favoriteVideoUseCase),
