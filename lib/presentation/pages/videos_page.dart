@@ -25,45 +25,55 @@ class VideosPage extends StatefulWidget {
   State<VideosPage> createState() => _VideosPageState();
 }
 
-class _VideosPageState extends State<VideosPage> with RouteAware {
+class _VideosPageState extends State<VideosPage> with RouteAware, WidgetsBindingObserver {
   late final List<VideoBloc> _videoBlocs;
   late final RecommendedVideoBloc _recommendedVideoBloc;
   bool _didInit = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_didInit) {
-      final videoRepository = RepositoryProvider.of<VideoRepository>(context);
-      final getVideosUseCase = GetVideos(videoRepository);
-      final favoriteVideoUseCase = FavoriteVideo(videoRepository);
-      final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
-      final cacheManager = RepositoryProvider.of<CacheManager>(context);
-      final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
-
-      _videoBlocs = List.generate(3, (i) {
-        final bloc = VideoBloc(
-          getVideos: getVideosUseCase,
-          favoriteVideo: favoriteVideoUseCase,
-          unfavoriteVideo: unfavoriteVideoUseCase,
-          cacheManager: cacheManager,
-        );
-        bloc.add(FetchVideos(Difficulty.values[i]));
-        return bloc;
-      });
-
-      _recommendedVideoBloc = RecommendedVideoBloc(
-        getRecommendedVideos: getRecommendedVideosUseCase,
-      )..add(FetchRecommendedVideos());
-
+      _initializeBlocs();
       _didInit = true;
     }
     routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
 
+  void _initializeBlocs() {
+    final videoRepository = RepositoryProvider.of<VideoRepository>(context);
+    final getVideosUseCase = GetVideos(videoRepository);
+    final favoriteVideoUseCase = FavoriteVideo(videoRepository);
+    final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
+    final cacheManager = RepositoryProvider.of<CacheManager>(context);
+    final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
+
+    _videoBlocs = List.generate(3, (i) {
+      final bloc = VideoBloc(
+        getVideos: getVideosUseCase,
+        favoriteVideo: favoriteVideoUseCase,
+        unfavoriteVideo: unfavoriteVideoUseCase,
+        cacheManager: cacheManager,
+      );
+      bloc.add(FetchVideos(Difficulty.values[i]));
+      return bloc;
+    });
+
+    _recommendedVideoBloc = RecommendedVideoBloc(
+      getRecommendedVideos: getRecommendedVideosUseCase,
+    )..add(FetchRecommendedVideos());
+  }
+
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
     for (final bloc in _videoBlocs) {
       bloc.close();
     }
@@ -75,6 +85,16 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
   void didPushNext() {
     for (final bloc in _videoBlocs) {
       bloc.add(const PausePlayback());
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      for (int i = 0; i < _videoBlocs.length; i++) {
+        _videoBlocs[i].add(FetchVideos(Difficulty.values[i], isRefresh: true));
+      }
+      _recommendedVideoBloc.add(const FetchRecommendedVideos(isRefresh: true));
     }
   }
 
@@ -107,7 +127,6 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
   }
 }
 
-// --- Carousel Widget ---
 class _VideoCarousel extends StatefulWidget {
   const _VideoCarousel();
 
@@ -154,7 +173,7 @@ class _VideoCarouselState extends State<_VideoCarousel> {
           }
           _startAutoScroll(recommendedVideos.length);
           return SizedBox(
-            height: 200,
+            height: 240, // Increased height
             child: PageView.builder(
               controller: _pageController,
               itemBuilder: (context, index) {
@@ -165,48 +184,56 @@ class _VideoCarouselState extends State<_VideoCarousel> {
                       builder: (_) => VideoDetailPage(video: video),
                     ),
                   ),
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.network(video.thumbnailUrl, fit: BoxFit.cover),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.black.withAlpha((255 * 0.6).round()), Colors.transparent],
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                            ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.network(
+                        video.thumbnailUrl, 
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.error_outline, color: Colors.grey),
+                          );
+                        },
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Colors.black.withAlpha((255 * 0.6).round()), Colors.transparent],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
                           ),
                         ),
-                        Positioned(
-                          bottom: 16,
-                          left: 16,
-                          child: Text(
-                            video.title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      ),
+                      Positioned(
+                        bottom: 16,
+                        left: 16,
+                        right: 16,
+                        child: Text(
+                          video.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               },
             ),
           );
         }
-        return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+        return const SizedBox(height: 240, child: Center(child: CircularProgressIndicator()));
       },
     );
   }
 }
 
-// --- Horizontal Video Section Widget (Refactored) ---
 class _VideoSection extends StatelessWidget {
   final String title;
   final Difficulty difficulty;
@@ -275,7 +302,6 @@ class _VideoSection extends StatelessWidget {
   }
 }
 
-// --- Thumbnail Card for Horizontal List ---
 class _VideoThumbnailCard extends StatelessWidget {
   final Video video;
 
@@ -292,21 +318,38 @@ class _VideoThumbnailCard extends StatelessWidget {
       child: SizedBox(
         width: 150,
         child: Card(
+          color: Colors.transparent,
+          elevation: 0,
           margin: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4.0)),
-                  child: Image.network(video.thumbnailUrl, fit: BoxFit.cover, width: double.infinity),
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    video.thumbnailUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: const Icon(Icons.error_outline, color: Colors.grey),
+                      );
+                    },
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              Container(
+                height: 24,
+                padding: const EdgeInsets.only(top: 4.0),
+                alignment: Alignment.centerLeft,
                 child: Text(
                   video.title,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 12),
                 ),

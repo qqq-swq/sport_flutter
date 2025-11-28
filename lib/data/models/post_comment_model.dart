@@ -43,21 +43,11 @@ class PostCommentModel {
       createdAtString = createdAtString.substring(0, createdAtString.length - 1);
     }
 
-    // Parse the date string. If it lacks timezone info, it's treated as local time by default.
-    final parsedDt = DateTime.parse(createdAtString);
-
-    // Re-create the DateTime object as a UTC time. This corrects the timezone issue
-    // by telling Dart that the time values from the server represent UTC.
-    final createdAtUtc = DateTime.utc(
-      parsedDt.year,
-      parsedDt.month,
-      parsedDt.day,
-      parsedDt.hour,
-      parsedDt.minute,
-      parsedDt.second,
-      parsedDt.millisecond,
-      parsedDt.microsecond,
-    );
+    // The server for post comments sends a naive DateTime string that is implicitly in UTC+8.
+    // We parse it as a UTC timestamp by appending 'Z', and then subtract 8 hours to get the actual UTC time.
+    // This ensures that regardless of the server's timezone, we have the correct moment in time.
+    final dateTimeAsUtc = DateTime.parse(createdAtString + 'Z');
+    final createdAtUtc = dateTimeAsUtc.subtract(const Duration(hours: 8));
 
     return PostCommentModel(
       id: json['id'] as int,

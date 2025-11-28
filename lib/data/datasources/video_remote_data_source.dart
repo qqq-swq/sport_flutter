@@ -40,10 +40,10 @@ class VideoRemoteDataSourceImpl implements VideoRemoteDataSource {
       headers: headers,
     );
 
-    print('GET /videos/$id RAW RESPONSE: ${response.body}');
-
     if (response.statusCode == 200) {
       return VideoModel.fromJson(json.decode(response.body));
+    } else if (response.statusCode == 404) {
+      throw Exception('Video not found');
     } else {
       throw Exception('Failed to load video detail');
     }

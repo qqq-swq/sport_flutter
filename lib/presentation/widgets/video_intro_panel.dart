@@ -158,6 +158,9 @@ class _VideoIntroPanelState extends State<VideoIntroPanel> {
   }
 
   Widget _buildRecommendedItem(BuildContext context, Video video) {
+    const double imageWidth = 150.0;
+    const double imageHeight = imageWidth * 9.0 / 16.0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: InkWell(
@@ -166,37 +169,48 @@ class _VideoIntroPanelState extends State<VideoIntroPanel> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 150,
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: CachedNetworkImage(
-                    imageUrl: video.thumbnailUrl,
-                    fit: BoxFit.cover,
-                    placeholder: (c, u) => const Center(child: CircularProgressIndicator()),
-                    errorWidget: (c, u, e) => const Icon(Icons.error),
-                  ),
+              width: imageWidth,
+              height: imageHeight,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: CachedNetworkImage(
+                  imageUrl: video.thumbnailUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (c, u) => const Center(child: CircularProgressIndicator()),
+                  errorWidget: (c, u, e) => const Icon(Icons.error),
                 ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    video.title,
-                    style: Theme.of(context).textTheme.titleSmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    video.authorName,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-                  )
-                ],
+              child: SizedBox(
+                height: imageHeight,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        video.title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          video.authorName,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -18,6 +18,15 @@ class FetchVideos extends VideoEvent {
   List<Object> get props => [difficulty, isRefresh];
 }
 
+class FetchVideosByDifficulty extends VideoEvent {
+  final Difficulty difficulty;
+
+  const FetchVideosByDifficulty(this.difficulty);
+
+  @override
+  List<Object> get props => [difficulty];
+}
+
 class PausePlayback extends VideoEvent {
   const PausePlayback();
 }

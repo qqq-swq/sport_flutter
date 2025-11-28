@@ -4,7 +4,6 @@ import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
-import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_input_field.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_section.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/post_header.dart';
@@ -27,7 +26,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void initState() {
     super.initState();
     context.read<PostCommentBloc>().add(FetchPostComments(widget.post.id));
-    context.read<RecommendedVideoBloc>().add(FetchRecommendedVideos());
   }
 
   void _onReplyTapped(PostComment comment) {

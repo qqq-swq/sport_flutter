@@ -1,4 +1,5 @@
 import 'package:sport_flutter/domain/entities/video.dart';
+import 'package:sport_flutter/domain/repositories/video_repository.dart';
 
 class VideoModel extends Video {
   const VideoModel({
@@ -13,6 +14,7 @@ class VideoModel extends Video {
     required super.likeCount,
     required super.createdAt,
     required super.isFavorited,
+    required super.difficulty,
   });
 
   factory VideoModel.fromJson(Map<String, dynamic> json) {
@@ -25,10 +27,28 @@ class VideoModel extends Video {
       userAvatarUrl = user['avatar_url'] ?? userAvatarUrl;
     }
 
+    DateTime createdAtDate;
+    if (json['created_at'] != null) {
+      final parsedDt = DateTime.parse(json['created_at'] as String);
+      // Re-create the DateTime object as a UTC time. This corrects potential timezone issues
+      // by ensuring that the time values are consistently treated as UTC.
+      createdAtDate = DateTime.utc(
+        parsedDt.year,
+        parsedDt.month,
+        parsedDt.day,
+        parsedDt.hour,
+        parsedDt.minute,
+        parsedDt.second,
+        parsedDt.millisecond,
+        parsedDt.microsecond,
+      );
+    } else {
+      createdAtDate = DateTime.now().toUtc(); // Fallback to current UTC time
+    }
+
     return VideoModel(
       id: json['id'] ?? 0,
       title: json['title'] ?? 'Untitled Video',
-      // Attempt to parse description with multiple possible keys for robustness
       description: json['description'] ?? json['Description'] ?? json['desc'],
       videoUrl: json['video_url'] ?? '',
       thumbnailUrl: json['thumbnail_url'] ?? '',
@@ -36,8 +56,12 @@ class VideoModel extends Video {
       userAvatarUrl: userAvatarUrl,
       viewCount: json['view_count'] ?? 0,
       likeCount: json['like_count'] ?? 0,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
+      createdAt: createdAtDate,
       isFavorited: json['isFavorited'] ?? false,
+      difficulty: Difficulty.values.firstWhere(
+        (e) => e.toString().split('.').last == json['difficulty'],
+        orElse: () => Difficulty.Easy,
+      ),
     );
   }
 }

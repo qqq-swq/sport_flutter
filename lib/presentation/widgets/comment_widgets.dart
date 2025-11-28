@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:sport_flutter/common/time_formatter.dart';
 import 'package:sport_flutter/domain/entities/comment.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
@@ -162,7 +163,6 @@ class _CommentItem extends StatelessWidget {
   }
 
   Widget _buildCommentActions(BuildContext context, AppLocalizations localizations) {
-    final localTime = comment.createdAt.toLocal();
     final bloc = context.read<CommentBloc>();
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
@@ -175,7 +175,7 @@ class _CommentItem extends StatelessWidget {
 
     return Row(
       children: [
-        Text(DateFormat('MM-dd HH:mm').format(localTime), style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
+        Text(formatTimestamp(comment.createdAt, locale: Intl.getCurrentLocale()), style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
         const Spacer(),
 
         IconButton(icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'like'))),

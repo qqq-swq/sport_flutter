@@ -25,7 +25,8 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     required this.cacheManager,
   }) : super(VideoInitial()) {
     on<FetchVideos>(_onFetchVideos);
-    on<UpdateFavoriteStatus>(_onUpdateFavoriteStatus); // New handler
+    on<FetchVideosByDifficulty>(_onFetchVideosByDifficulty);
+    on<UpdateFavoriteStatus>(_onUpdateFavoriteStatus);
     on<PausePlayback>(_onPausePlayback);
     on<UpdateVideoVisibility>(_onUpdateVideoVisibility);
   }
@@ -68,7 +69,6 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
     }
   }
 
-  // Handler for the new event
   void _onUpdateFavoriteStatus(UpdateFavoriteStatus event, Emitter<VideoState> emit) {
     if (state is VideoLoaded) {
       final currentState = state as VideoLoaded;
@@ -93,6 +93,16 @@ class VideoBloc extends Bloc<VideoEvent, VideoState> {
       ));
     } catch (e) {
       emit(VideoError('Failed to fetch videos: $e'));
+    }
+  }
+
+  Future<void> _onFetchVideosByDifficulty(FetchVideosByDifficulty event, Emitter<VideoState> emit) async {
+    emit(VideoLoading());
+    try {
+      final videos = await getVideos(difficulty: event.difficulty);
+      emit(VideoLoaded(videos: videos));
+    } catch (e) {
+      emit(VideoError('Failed to fetch videos by difficulty: $e'));
     }
   }
 }

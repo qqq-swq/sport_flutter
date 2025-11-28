@@ -15,7 +15,9 @@ import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/comment_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/favorites_bloc.dart';
-import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
+import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
+import 'package:sport_flutter/presentation/bloc/video_event.dart';
+import 'package:sport_flutter/presentation/bloc/video_state.dart';
 import 'package:sport_flutter/presentation/widgets/comment_widgets.dart';
 import 'package:sport_flutter/presentation/widgets/video_intro_panel.dart';
 import 'package:sport_flutter/presentation/widgets/video_player_widget.dart';
@@ -55,12 +57,9 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     _commentBloc = CommentBloc();
     _initializePlayer(_currentVideo.videoUrl);
     
-    // Fetch full details upon initialization
     _fetchFullVideoDetails(); 
     
-    // These can be triggered immediately
     _commentBloc.add(FetchComments(_currentVideo.id));
-    context.read<RecommendedVideoBloc>().add(FetchRecommendedVideos());
   }
 
   @override
@@ -87,14 +86,22 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
           _currentVideo = fullVideo;
           _isFavorited = fullVideo.isFavorited;
         });
-        // After getting the main video data, get user-specific status
+        context.read<VideoBloc>().add(FetchVideosByDifficulty(_currentVideo.difficulty));
         await _fetchInteractiveStatus();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load full video details: $e')),
-        );
+        final errorMessage = e.toString();
+        if (errorMessage.contains('Video not found')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('该视频已被删除')),
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load full video details: $e')),
+          );
+        }
       }
     } finally {
       if (mounted) {
@@ -115,7 +122,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
         setState(() {
           _isLiked = data['isLikedByUser'] ?? false;
           _isDisliked = data['isDislikedByUser'] ?? false;
-          // We trust the isFavorited from the main video object more, but can update likeCount
            _currentVideo = _currentVideo.copyWith(
             likeCount: data['like_count'] ?? _currentVideo.likeCount,
           );
@@ -190,13 +196,15 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       _isFavorited = !isCurrentlyFavorited;
     });
 
+    final favoritesBloc = context.read<FavoritesBloc>();
+
     try {
       if (isCurrentlyFavorited) {
         await context.read<UnfavoriteVideo>()(_currentVideo.id);
-        context.read<FavoritesBloc>().add(RemoveFavorite(_currentVideo));
+        favoritesBloc.add(RemoveFavorite(_currentVideo));
       } else {
         await context.read<FavoriteVideo>()(_currentVideo.id);
-        context.read<FavoritesBloc>().add(AddFavorite(_currentVideo));
+        favoritesBloc.add(AddFavorite(_currentVideo));
       }
     } catch (e) {
       setState(() {
@@ -314,9 +322,9 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
       appBar: AppBar(title: Text(_currentVideo.title)),
       body: PopScope(
         canPop: false,
-        onPopInvoked: (didPop) {
+        onPopInvokedWithResult: (bool didPop, dynamic result) {
           if (didPop) return;
-          Navigator.of(context).pop(_isFavorited);
+          Navigator.of(context).pop(result as bool?);
         },
         child: Column(
           children: [
@@ -354,10 +362,10 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
                 children: [
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : BlocBuilder<RecommendedVideoBloc, RecommendedVideoState>(
+                      : BlocBuilder<VideoBloc, VideoState>(
                           builder: (context, state) {
                             List<Video> recommendedVideos = [];
-                            if (state is RecommendedVideoLoaded) {
+                            if (state is VideoLoaded) {
                               recommendedVideos = state.videos;
                             }
                             return VideoIntroPanel(

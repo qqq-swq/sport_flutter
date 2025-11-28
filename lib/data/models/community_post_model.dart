@@ -28,13 +28,29 @@ class CommunityPostModel extends CommunityPost {
         );
 
   factory CommunityPostModel.fromJson(Map<String, dynamic> json) {
+    // Parse the date string. If it lacks timezone info, it's treated as local time by default.
+    final parsedDt = DateTime.parse(json['createdAt'] as String);
+
+    // Re-create the DateTime object as a UTC time. This corrects the timezone issue
+    // by telling Dart that the time values from the server represent UTC.
+    final createdAtUtc = DateTime.utc(
+      parsedDt.year,
+      parsedDt.month,
+      parsedDt.day,
+      parsedDt.hour,
+      parsedDt.minute,
+      parsedDt.second,
+      parsedDt.millisecond,
+      parsedDt.microsecond,
+    );
+    
     return CommunityPostModel(
       id: json['id'] as int,
       username: json['username'] as String,
       userAvatarUrl: json['userAvatarUrl'] as String?,
       title: json['title'] as String,
       content: json['content'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: createdAtUtc, // Use the UTC DateTime
       imageUrls: json['imageUrls'] != null ? List<String>.from(json['imageUrls']) : [],
       videoUrls: json['videoUrls'] != null ? List<String>.from(json['videoUrls']) : [],
       commentCount: json['commentCount'] as int? ?? 0,

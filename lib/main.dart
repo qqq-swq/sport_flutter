@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:sport_flutter/presentation/pages/home_page.dart';
 import 'l10n/app_localizations.dart';
 import 'package:timeago/timeago.dart' as timeago;
+// ignore: implementation_imports
 import 'package:timeago/src/messages/zh_cn_messages.dart';
 
 // Core
@@ -37,7 +39,6 @@ import 'package:sport_flutter/domain/usecases/get_video_by_id.dart';
 import 'package:sport_flutter/domain/usecases/favorite_video.dart';
 import 'package:sport_flutter/domain/usecases/unfavorite_video.dart';
 import 'package:sport_flutter/domain/usecases/get_favorite_videos.dart';
-import 'package:sport_flutter/domain/usecases/get_recommended_videos.dart'; // New
 import 'package:sport_flutter/domain/usecases/get_community_posts.dart';
 import 'package:sport_flutter/domain/usecases/get_my_posts.dart';
 import 'package:sport_flutter/domain/usecases/create_community_post.dart';
@@ -56,7 +57,6 @@ import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/my_posts_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/favorites_bloc.dart'; // New
-import 'package:sport_flutter/presentation/bloc/recommended_video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/locale_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/community_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
@@ -100,7 +100,6 @@ void main() async {
   final favoriteVideoUseCase = FavoriteVideo(videoRepository);
   final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
   final getFavoriteVideosUseCase = GetFavoriteVideos(videoRepository);
-  final getRecommendedVideosUseCase = GetRecommendedVideos(videoRepository);
   final getCommunityPostsUseCase = GetCommunityPosts(communityPostRepository);
   final getMyPostsUseCase = GetMyPosts(communityPostRepository);
   final createCommunityPostUseCase = CreateCommunityPost(communityPostRepository);
@@ -160,9 +159,6 @@ void main() async {
             create: (context) => FavoritesBloc(getFavoriteVideos: getFavoriteVideosUseCase),
           ),
           BlocProvider(
-            create: (context) => RecommendedVideoBloc(getRecommendedVideos: getRecommendedVideosUseCase),
-          ),
-          BlocProvider(
             create: (context) => CommunityBloc(
               getCommunityPosts: getCommunityPostsUseCase,
               createCommunityPost: createCommunityPostUseCase,
@@ -193,6 +189,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LocaleBloc, LocaleState>(
       builder: (context, localeState) {
+        // Correctly create the text theme without depending on an existing context.
+        final baseTextTheme = GoogleFonts.latoTextTheme(ThemeData.light().textTheme);
+        final mergedTextTheme = baseTextTheme.copyWith(
+          bodyMedium: GoogleFonts.notoSansSc(textStyle: baseTextTheme.bodyMedium),
+          displayLarge: GoogleFonts.notoSansSc(textStyle: baseTextTheme.displayLarge),
+          displayMedium: GoogleFonts.notoSansSc(textStyle: baseTextTheme.displayMedium),
+          displaySmall: GoogleFonts.notoSansSc(textStyle: baseTextTheme.displaySmall),
+          headlineMedium: GoogleFonts.notoSansSc(textStyle: baseTextTheme.headlineMedium),
+          headlineSmall: GoogleFonts.notoSansSc(textStyle: baseTextTheme.headlineSmall),
+          titleLarge: GoogleFonts.notoSansSc(textStyle: baseTextTheme.titleLarge),
+        );
+
         return MaterialApp(
           title: '体育应用',
           locale: localeState.locale,
@@ -207,14 +215,32 @@ class MyApp extends StatelessWidget {
             Locale('zh', ''),
           ],
           theme: ThemeData(
-            primarySwatch: Colors.blue,
+            useMaterial3: true, // Enable Material 3
             brightness: Brightness.light,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple, brightness: Brightness.light),
             scaffoldBackgroundColor: Colors.white,
             visualDensity: VisualDensity.adaptivePlatformDensity,
-            textTheme: const TextTheme(
-              bodyMedium: TextStyle(color: Colors.black87),
-              bodySmall: TextStyle(color: Colors.black54),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black87,
+              elevation: 0,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.dark,
+              ),
             ),
+            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              backgroundColor: Colors.white,
+              unselectedItemColor: Colors.grey,
+              elevation: 0,
+              // selectedItemColor is now derived from colorScheme.primary
+            ),
+            tabBarTheme: const TabBarThemeData(
+              indicatorSize: TabBarIndicatorSize.label, // Better indicator style
+              unselectedLabelColor: Colors.grey,
+              // labelColor and indicatorColor are now derived from colorScheme.primary
+            ),
+            textTheme: mergedTextTheme,
           ),
           navigatorObservers: [routeObserver],
           home: BlocBuilder<AuthBloc, AuthState>(

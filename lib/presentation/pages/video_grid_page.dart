@@ -111,22 +111,32 @@ class _GridItem extends StatelessWidget {
       },
       child: Card(
         clipBehavior: Clip.antiAlias,
+        color: Colors.grey[100],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: CachedNetworkImage(
-                imageUrl: video.thumbnailUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8.0),
+                  topRight: Radius.circular(8.0),
+                ),
+                child: CachedNetworkImage(
+                  imageUrl: video.thumbnailUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
+                ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 video.title,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 14),
               ),

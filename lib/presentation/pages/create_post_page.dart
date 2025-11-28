@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/community_bloc.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -42,6 +44,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
     await showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.grey.shade100,
       builder: (BuildContext bc) {
         return SafeArea(
           child: Wrap(
@@ -136,9 +139,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
+                      backgroundColor: Colors.purple.shade200,
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: Colors.grey.shade700,
+                      disabledBackgroundColor: Colors.grey.shade400,
                     ),
                     child: isSubmitting
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
@@ -215,11 +218,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 height: double.infinity,
                 child: isImage
                     ? Image.file(file, fit: BoxFit.cover)
-                    : Container(
-                        color: Colors.black,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.movie_creation_outlined, color: Colors.white, size: 48),
-                      ),
+                    : _VideoThumbnail(videoFile: file),
               ),
             ),
             IconButton(
@@ -235,6 +234,64 @@ class _CreatePostPageState extends State<CreatePostPage> {
           ],
         );
       },
+    );
+  }
+}
+
+class _VideoThumbnail extends StatefulWidget {
+  final File videoFile;
+
+  const _VideoThumbnail({Key? key, required this.videoFile}) : super(key: key);
+
+  @override
+  _VideoThumbnailState createState() => _VideoThumbnailState();
+}
+
+class _VideoThumbnailState extends State<_VideoThumbnail> {
+  Uint8List? _thumbnailData;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateThumbnail();
+  }
+
+  Future<void> _generateThumbnail() async {
+    try {
+      final thumbnailData = await VideoThumbnail.thumbnailData(
+        video: widget.videoFile.path,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 256,
+        quality: 50,
+      );
+      if (mounted) {
+        setState(() {
+          _thumbnailData = thumbnailData;
+        });
+      }
+    } catch (e) {
+      // Handle error, maybe show a broken icon
+      debugPrint("Error generating thumbnail: $e");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_thumbnailData == null) {
+      return Container(
+        color: Colors.black,
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(
+          strokeWidth: 2.0,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
+      );
+    }
+    return Image.memory(
+      _thumbnailData!,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
     );
   }
 }

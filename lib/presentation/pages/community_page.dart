@@ -96,6 +96,7 @@ class _CommunityView extends StatelessWidget {
             ),
           );
         },
+        backgroundColor: Colors.purple.shade100,
         child: const Icon(Iconsax.add),
       ),
     );
@@ -179,8 +180,12 @@ class _PostItemState extends State<_PostItem> {
     return InkWell(
       onTap: () async {
         final result = await Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => PostDetailPage(post: widget.post)),
-        );
+          MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<CommunityBloc>(),
+                child: PostDetailPage(post: widget.post),
+              ),
+        ));
         if (result == true && mounted) {
           context.read<CommunityBloc>().add(FetchPosts());
         }

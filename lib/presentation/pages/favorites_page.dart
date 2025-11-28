@@ -32,7 +32,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             if (state.videos.isEmpty) {
               return const Center(child: Text('你还没有收藏任何视频'));
             }
-            return ListView.builder(
+            return ListView.separated(
               itemCount: state.videos.length,
               itemBuilder: (context, index) {
                 final video = state.videos[index];
@@ -54,6 +54,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   child: VideoListItem(video: video),
                 );
               },
+              separatorBuilder: (context, index) => Divider(color: Colors.grey.shade200),
             );
           }
           return const Center(child: Text('加载失败'));

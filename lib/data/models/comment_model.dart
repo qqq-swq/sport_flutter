@@ -25,6 +25,25 @@ class CommentModel extends Comment {
       createdAtString = createdAtString.substring(0, createdAtString.length - 1);
     }
 
+    DateTime createdAtDate;
+    if (createdAtString.isNotEmpty) {
+      final parsedDt = DateTime.parse(createdAtString);
+      // Re-create the DateTime object as a UTC time. This corrects the timezone issue
+      // by telling Dart that the time values from the server represent UTC.
+      createdAtDate = DateTime.utc(
+        parsedDt.year,
+        parsedDt.month,
+        parsedDt.day,
+        parsedDt.hour,
+        parsedDt.minute,
+        parsedDt.second,
+        parsedDt.millisecond,
+        parsedDt.microsecond,
+      );
+    } else {
+      createdAtDate = DateTime.now().toUtc(); // Fallback to current UTC time
+    }
+
     return CommentModel(
       id: json['id'] ?? 0,
       userId: (json['user_id'] ?? '').toString(),
@@ -34,7 +53,7 @@ class CommentModel extends Comment {
       userAvatarUrl: json['userAvatarUrl'],
       likeCount: json['like_count'] ?? 0,
       dislikeCount: json['dislike_count'] ?? 0,
-      createdAt: createdAtString.isNotEmpty ? DateTime.parse(createdAtString) : DateTime.now(),
+      createdAt: createdAtDate,
       replies: replyList,
       replyCount: json['reply_count'] ?? 0,
       userVote: json['user_vote'],

@@ -26,6 +26,8 @@ dependencies:
   cached_network_image: ^3.3.1
   flutter_cache_manager: ^3.3.2
   carousel_slider: ^4.2.1
+  video_thumbnail: ^0.5.3
+  path_provider: ^2.0.11
 
   # Lifecycle Management
   visibility_detector: ^0.4.0+2
@@ -39,6 +41,9 @@ dependencies:
   dio: ^5.4.1
   crypto: ^3.0.3 # For OSS signature calculation
   meta: ^1.12.0
+
+  # Font library
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

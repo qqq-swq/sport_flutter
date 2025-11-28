@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sport_flutter/domain/repositories/video_repository.dart';
 
 class Video extends Equatable {
   final int id;
@@ -12,6 +13,7 @@ class Video extends Equatable {
   final int likeCount;
   final DateTime createdAt;
   final bool isFavorited;
+  final Difficulty difficulty;
 
   const Video({
     required this.id,
@@ -25,6 +27,7 @@ class Video extends Equatable {
     required this.likeCount,
     required this.createdAt,
     this.isFavorited = false,
+    required this.difficulty,
   });
 
   Video copyWith({
@@ -39,6 +42,7 @@ class Video extends Equatable {
     int? likeCount,
     DateTime? createdAt,
     bool? isFavorited,
+    Difficulty? difficulty,
   }) {
     return Video(
       id: id ?? this.id,
@@ -52,9 +56,10 @@ class Video extends Equatable {
       likeCount: likeCount ?? this.likeCount,
       createdAt: createdAt ?? this.createdAt,
       isFavorited: isFavorited ?? this.isFavorited,
+      difficulty: difficulty ?? this.difficulty,
     );
   }
 
   @override
-  List<Object?> get props => [id, title, description, videoUrl, thumbnailUrl, authorName, userAvatarUrl, viewCount, likeCount, createdAt, isFavorited];
+  List<Object?> get props => [id, title, description, videoUrl, thumbnailUrl, authorName, userAvatarUrl, viewCount, likeCount, createdAt, isFavorited, difficulty];
 }
