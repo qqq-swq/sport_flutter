@@ -25,19 +25,30 @@ String formatTimestamp(DateTime timestamp, AppLocalizations localizations) {
         return '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')}';
     }
 
-    if (difference.inDays >= 7) {
-        final weeks = (difference.inDays / 7).floor();
-        return localizations.weeksAgo(weeks);
+    if (difference.inMinutes < 1) {
+      return localizations.justNow;
     }
-    if (difference.inDays >= 1) {
-        return localizations.daysAgo(difference.inDays);
+    if (difference.inHours < 1) {
+      return localizations.minutesAgo(difference.inMinutes);
     }
-    if (difference.inHours >= 1) {
-        return localizations.hoursAgo(difference.inHours);
+    if (difference.inHours < 24) {
+      return localizations.hoursAgo(difference.inHours);
     }
-    if (difference.inMinutes >= 1) {
-        return localizations.minutesAgo(difference.inMinutes);
-    }
+    
+    final hour = timestamp.hour.toString().padLeft(2, '0');
+    final minute = timestamp.minute.toString().padLeft(2, '0');
+    final timeString = '$hour:$minute';
 
-    return localizations.justNow;
+    if (difference.inDays < 7) {
+      return '${localizations.daysAgo(difference.inDays)} $timeString';
+    }
+    
+    final month = timestamp.month.toString().padLeft(2, '0');
+    final day = timestamp.day.toString().padLeft(2, '0');
+
+    if (timestamp.year == now.year) {
+      return '$month-$day $timeString';
+    } else {
+      return '${timestamp.year}-$month-$day $timeString';
+    }
 }
