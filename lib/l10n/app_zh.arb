@@ -15,8 +15,20 @@
       "count": {}
     }
   },
+  "weeksAgo": "{count, plural, =0{本周} =1{1 周前} other{{count} 周前}}",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "hoursAgo": "{count, plural, =0{刚刚} =1{1 小时前} other{{count} 小时前}}",
   "@hoursAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "minutesAgo": "{count, plural, =0{刚刚} =1{1 分钟前} other{{count} 分钟前}}",
+  "@minutesAgo": {
     "placeholders": {
       "count": {}
     }

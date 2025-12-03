@@ -93,8 +93,8 @@ class CommentItem extends StatelessWidget {
   Widget _buildActionRow(BuildContext context, TextTheme textTheme, ColorScheme colorScheme) {
     final bloc = context.read<PostCommentBloc>();
     final voteStyle = textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold);
-    final locale = context.watch<LocaleBloc>().state.locale.toLanguageTag();
-    final timeString = formatTimestamp(comment.createdAt, locale: locale.replaceAll('-', '_'));
+    final localizations = AppLocalizations.of(context)!;
+    final timeString = formatTimestamp(comment.createdAt, localizations);
     final authState = context.watch<AuthBloc>().state;
     String? currentUserId;
     if (authState is AuthAuthenticated) {

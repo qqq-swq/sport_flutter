@@ -38,12 +38,36 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String weeksAgo(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 周前',
+      one: '1 周前',
+      zero: '本周',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String hoursAgo(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: '$count 小时前',
       one: '1 小时前',
+      zero: '刚刚',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesAgo(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 分钟前',
+      one: '1 分钟前',
       zero: '刚刚',
     );
     return '$_temp0';

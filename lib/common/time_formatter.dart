@@ -1,3 +1,5 @@
+import 'package:sport_flutter/l10n/app_localizations.dart';
+
 String formatDuration(Duration d) {
   final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
   final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
@@ -15,7 +17,7 @@ String formatDurationWithHours(Duration d) {
   }
 }
 
-String formatTimestamp(DateTime timestamp, {String? locale}) {
+String formatTimestamp(DateTime timestamp, AppLocalizations localizations) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
 
@@ -25,17 +27,17 @@ String formatTimestamp(DateTime timestamp, {String? locale}) {
 
     if (difference.inDays >= 7) {
         final weeks = (difference.inDays / 7).floor();
-        return '${weeks}w ago';
+        return localizations.weeksAgo(weeks);
     }
     if (difference.inDays >= 1) {
-        return '${difference.inDays}d ago';
+        return localizations.daysAgo(difference.inDays);
     }
     if (difference.inHours >= 1) {
-        return '${difference.inHours}h ago';
+        return localizations.hoursAgo(difference.inHours);
     }
     if (difference.inMinutes >= 1) {
-        return '${difference.inMinutes}m ago';
+        return localizations.minutesAgo(difference.inMinutes);
     }
 
-    return 'just now';
+    return localizations.justNow;
 }

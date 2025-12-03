@@ -39,12 +39,36 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String weeksAgo(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks ago',
+      one: '1 week ago',
+      zero: 'This week',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String hoursAgo(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: '$count hours ago',
       one: '1 hour ago',
+      zero: 'Just now',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesAgo(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes ago',
+      one: '1 minute ago',
       zero: 'Just now',
     );
     return '$_temp0';

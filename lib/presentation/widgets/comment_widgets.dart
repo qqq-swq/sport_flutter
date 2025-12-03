@@ -175,7 +175,7 @@ class _CommentItem extends StatelessWidget {
 
     return Row(
       children: [
-        Text(formatTimestamp(comment.createdAt, locale: Intl.getCurrentLocale()), style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
+        Text(formatTimestamp(comment.createdAt, localizations), style: textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
         const Spacer(),
 
         IconButton(icon: Icon(Iconsax.like, size: 16, color: comment.userVote == 'like' ? colorScheme.primary : Colors.grey.shade600), onPressed: () => bloc.add(VoteComment(comment.id, 'like'))),

@@ -122,11 +122,23 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{Today} =1{1 day ago} other{{count} days ago}}'**
   String daysAgo(num count);
 
+  /// No description provided for @weeksAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{This week} =1{1 week ago} other{{count} weeks ago}}'**
+  String weeksAgo(num count);
+
   /// No description provided for @hoursAgo.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =0{Just now} =1{1 hour ago} other{{count} hours ago}}'**
   String hoursAgo(num count);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Just now} =1{1 minute ago} other{{count} minutes ago}}'**
+  String minutesAgo(num count);
 
   /// No description provided for @justNow.
   ///
