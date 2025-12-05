@@ -60,39 +60,46 @@ class _CommentSectionState extends State<CommentSection> {
     return Column(
       children: [
         Expanded(
-          child: BlocConsumer<CommentBloc, CommentState>(
-            listener: (context, state) {
-              // When a post is successful from the main input, clear the target.
-              if (state is CommentPostSuccess) {
-                _setReplyingTo(null);
-              }
+          child: GestureDetector(
+            onTap: () {
+              _setReplyingTo(null);
+              FocusScope.of(context).unfocus();
             },
-            builder: (context, state) {
-              // This robust builder logic handles all UI states correctly.
-              if (state is CommentLoaded) {
-                if (state.comments.isEmpty) {
-                  return Center(child: Text(localizations.beTheFirstToComment));
+            behavior: HitTestBehavior.translucent,
+            child: BlocConsumer<CommentBloc, CommentState>(
+              listener: (context, state) {
+                // When a post is successful from the main input, clear the target.
+                if (state is CommentPostSuccess) {
+                  _setReplyingTo(null);
                 }
-                return RefreshIndicator(
-                  onRefresh: () async =>
-                      context.read<CommentBloc>().add(FetchComments(widget.videoId)),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: state.comments.length,
-                    itemBuilder: (context, index) => _CommentItem(
-                      comment: state.comments[index],
-                      onReply: _setReplyingTo,
-                      onShowReplies: _handleShowReplies,
+              },
+              builder: (context, state) {
+                // This robust builder logic handles all UI states correctly.
+                if (state is CommentLoaded) {
+                  if (state.comments.isEmpty) {
+                    return Center(child: Text(localizations.beTheFirstToComment));
+                  }
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        context.read<CommentBloc>().add(FetchComments(widget.videoId)),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: state.comments.length,
+                      itemBuilder: (context, index) => _CommentItem(
+                        comment: state.comments[index],
+                        onReply: _setReplyingTo,
+                        onShowReplies: _handleShowReplies,
+                      ),
                     ),
-                  ),
-                );
-              }
-              if (state is CommentError) {
-                return Center(child: Text('Error: ${state.message}'));
-              }
-              // For ANY other state (Initial, Loading), show the loading indicator.
-              return const Center(child: CircularProgressIndicator());
-            },
+                  );
+                }
+                if (state is CommentError) {
+                  return Center(child: Text('Error: ${state.message}'));
+                }
+                // For ANY other state (Initial, Loading), show the loading indicator.
+                return const Center(child: CircularProgressIndicator());
+              },
+            ),
           ),
         ),
         _CommentInputField(

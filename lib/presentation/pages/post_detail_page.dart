@@ -1,12 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
+import 'package:sport_flutter/domain/entities/user.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
+import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_input_field.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_section.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/post_header.dart';
+import 'package:sport_flutter/presentation/pages/post_detail/widgets/sliver_persistent_header_delegate.dart';
 import 'package:sport_flutter/presentation/widgets/shimmer.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -21,11 +26,39 @@ class PostDetailPage extends StatefulWidget {
 
 class _PostDetailPageState extends State<PostDetailPage> {
   PostComment? _replyingTo;
+  final _scrollController = ScrollController();
+  final _postHeaderKey = GlobalKey();
+  bool _isAppBarTitleVisible = false;
 
   @override
   void initState() {
     super.initState();
     context.read<PostCommentBloc>().add(FetchPostComments(widget.post.id));
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_postHeaderKey.currentContext == null) return;
+
+    final renderSliver =
+        _postHeaderKey.currentContext!.findRenderObject() as RenderSliver;
+    final postHeaderHeight = renderSliver.geometry!.scrollExtent;
+
+    // Show the title when the user has scrolled past the post header.
+    final shouldShow = _scrollController.offset >= postHeaderHeight;
+
+    if (shouldShow != _isAppBarTitleVisible) {
+      setState(() {
+        _isAppBarTitleVisible = shouldShow;
+      });
+    }
   }
 
   void _onReplyTapped(PostComment comment) {
@@ -46,6 +79,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
+          backgroundColor: Colors.grey[50],
           title: Text(l10n.deletePost),
           content: Text(l10n.deletePostConfirmation),
           actions: <Widget>[
@@ -68,11 +102,35 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthBloc>().state;
+    final currentUser = authState is AuthAuthenticated ? authState.user : null;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.post.username),
+        backgroundColor: Colors.white,
+        elevation: 1.0,
+        titleSpacing: 0.0,
+        title: AnimatedOpacity(
+          opacity: _isAppBarTitleVisible ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 300),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundImage: widget.post.userAvatarUrl != null && widget.post.userAvatarUrl!.isNotEmpty
+                    ? CachedNetworkImageProvider(widget.post.userAvatarUrl!)
+                    : null,
+                child: widget.post.userAvatarUrl == null || widget.post.userAvatarUrl!.isEmpty
+                    ? const Icon(Iconsax.profile, size: 18)
+                    : null,
+              ),
+              const SizedBox(width: 8),
+              Text(widget.post.username),
+            ],
+          ),
+        ),
         actions: [
-          if (widget.post.username == 'wyy')
+          if (currentUser != null && widget.post.userId.toString() == currentUser.id)
             IconButton(
               icon: const Icon(Iconsax.trash),
               onPressed: _showDeleteConfirmationDialog,
@@ -92,46 +150,52 @@ class _PostDetailPageState extends State<PostDetailPage> {
             );
           }
         },
-        child: Column(
-          children: [
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(child: PostHeader(post: widget.post)),
-                  SliverToBoxAdapter(
-                      child: Padding(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            _onCancelReply();
+          },
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverToBoxAdapter(key: _postHeaderKey, child: PostHeader(post: widget.post)),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: SportSliverPersistentHeaderDelegate(
+                  maxHeight: 40,
+                  minHeight: 40,
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     child: Text(AppLocalizations.of(context)!.comments, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  )),
-                  BlocBuilder<PostCommentBloc, PostCommentState>(
-                    builder: (context, state) {
-                      if (state is PostCommentLoading) {
-                        // Use a SliverToBoxAdapter to embed the ShimmerLoading
-                        return const SliverToBoxAdapter(
-                          child: SizedBox(height: 400, child: ShimmerLoading()),
-                        );
-                      }
-                      if (state is PostCommentLoaded) {
-                        return CommentSection(postId: widget.post.id, onReplyTapped: _onReplyTapped);
-                      }
-                      if (state is PostCommentError) {
-                        return SliverToBoxAdapter(
-                          child: Center(child: Text('Error: ${state.message}')),
-                        );
-                      }
-                      return const SliverToBoxAdapter(child: SizedBox.shrink());
-                    },
                   ),
-                ],
+                ),
               ),
-            ),
-            CommentInputField(
-              postId: widget.post.id,
-              replyingTo: _replyingTo,
-              onCancelReply: _onCancelReply,
-            ),
-          ],
+              BlocBuilder<PostCommentBloc, PostCommentState>(
+                builder: (context, state) {
+                  if (state is PostCommentLoading) {
+                    return const SliverToBoxAdapter(
+                      child: SizedBox(height: 400, child: ShimmerLoading()),
+                    );
+                  }
+                  if (state is PostCommentLoaded) {
+                    return CommentSection(postId: widget.post.id, onReplyTapped: _onReplyTapped);
+                  }
+                  if (state is PostCommentError) {
+                    return SliverToBoxAdapter(
+                      child: Center(child: Text('Error: ${state.message}')),
+                    );
+                  }
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                },
+              ),
+            ],
+          ),
         ),
+      ),
+      bottomNavigationBar: CommentInputField(
+        postId: widget.post.id,
+        replyingTo: _replyingTo,
+        onCancelReply: _onCancelReply,
       ),
     );
   }

@@ -139,10 +139,25 @@ class _PostHeaderState extends State<PostHeader> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+      padding: const EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Media at the top
+          if (widget.post.imageUrls.isNotEmpty)
+            MediaGallery(imageUrls: widget.post.imageUrls),
+
+          if (widget.post.videoUrls.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: _buildVideoPlayer(),
+            ),
+
+          // Spacer
+          if (widget.post.imageUrls.isNotEmpty || widget.post.videoUrls.isNotEmpty)
+            const SizedBox(height: 12.0),
+
+          // Author info, title, and content
           Row(
             children: [
               CircleAvatar(
@@ -162,19 +177,6 @@ class _PostHeaderState extends State<PostHeader> {
           Text(widget.post.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(widget.post.content, style: Theme.of(context).textTheme.bodyLarge),
-          if (widget.post.imageUrls.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0),
-              child: MediaGallery(imageUrls: widget.post.imageUrls),
-            ),
-          if (widget.post.videoUrls.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 12.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: _buildVideoPlayer(),
-              ),
-            ),
           const SizedBox(height: 16),
         ],
       ),

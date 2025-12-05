@@ -297,4 +297,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get usernameAndEmailMismatch => '用户名和电子邮件不匹配';
+
+  @override
+  String get noRepliesYet => '暂无回复。';
 }

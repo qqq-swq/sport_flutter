@@ -32,10 +32,6 @@ class PostCommentModel {
   });
 
   factory PostCommentModel.fromJson(Map<String, dynamic> json) {
-    // --- DIAGNOSTIC PRINT ---
-    // This will print the raw value from the server to the console.
-    print('<<< RAW createdAt FROM SERVER: ${json['createdAt']} >>>');
-
     var createdAtString = json['createdAt'] as String;
 
     // Handle non-standard 'ZZ' suffix from server if it exists
@@ -54,7 +50,7 @@ class PostCommentModel {
       userId: json['userId'].toString(), // Assuming userId can be int or string from json
       parentCommentId: json['parentCommentId'] as int?,
       content: json['content'] as String,
-      username: json['username'] as String,
+      username: json['username'] as String? ?? '[已删除用户]',
       userAvatarUrl: json['userAvatarUrl'] as String?,
       likeCount: json['likeCount'] as int? ?? 0,
       dislikeCount: json['dislikeCount'] as int? ?? 0,

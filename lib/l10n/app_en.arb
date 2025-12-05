@@ -1,4 +1,3 @@
-
 {
   "appTitle": "Sport Flutter",
   "upNext": "Up Next",
@@ -132,5 +131,6 @@
   "passwordsDoNotMatch": "The two passwords do not match",
   "confirmReset": "Confirm Reset",
   "passwordResetSuccessLogin": "Password has been reset. Please log in.",
-  "usernameAndEmailMismatch": "Username and email mismatch"
+  "usernameAndEmailMismatch": "Username and email mismatch",
+  "noRepliesYet": "No replies yet."
 }

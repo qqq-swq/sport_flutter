@@ -1,4 +1,3 @@
-
 {
   "appTitle": "运动 Flutter",
   "upNext": "接下来播放",
@@ -132,5 +131,6 @@
   "passwordsDoNotMatch": "两次输入的密码不一致",
   "confirmReset": "确认重置",
   "passwordResetSuccessLogin": "密码已成功重置，请登录",
-  "usernameAndEmailMismatch": "用户名和电子邮件不匹配"
+  "usernameAndEmailMismatch": "用户名和电子邮件不匹配",
+  "noRepliesYet": "暂无回复。"
 }

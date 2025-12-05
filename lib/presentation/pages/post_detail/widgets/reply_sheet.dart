@@ -42,7 +42,7 @@ class ReplySheet extends StatelessWidget {
                       if (state is PostCommentLoaded) {
                         final parentComment = state.comments.firstWhere((c) => c.id == parentCommentId);
                         if (parentComment.replies.isEmpty) {
-                          return const Center(child: Text('No replies yet.'));
+                          return Center(child: Text(l10n.noRepliesYet));
                         }
                         return ListView.builder(
                           controller: scrollController,

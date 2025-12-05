@@ -335,9 +335,12 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
             onToggleFullScreen: _toggleFullScreen,
           );
         }
-        return Container(
-          color: Colors.black,
-          child: const Center(child: CircularProgressIndicator()),
+        return AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Container(
+            color: Colors.black,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
         );
       },
     );
@@ -350,67 +353,99 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(_currentVideo.title)),
-      body: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (bool didPop, dynamic result) {
-          if (didPop) return;
-          Navigator.of(context).pop(result as bool?);
-        },
-        child: Column(
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: playerWidget,
+      body: SafeArea(
+        child: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (bool didPop, dynamic result) {
+            if (didPop) return;
+            Navigator.of(context).pop(result as bool?);
+          },
+          child: BlocProvider.value(
+            value: _commentBloc,
+            child: DefaultTabController(
+              length: 2,
+              child: NestedScrollView(
+                headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                  return <Widget>[
+                    SliverAppBar(
+                      title: Text(_currentVideo.title),
+                      floating: true,
+                      pinned: false,
+                      snap: true,
+                    ),
+                    SliverToBoxAdapter(
+                      child: playerWidget,
+                    ),
+                    SliverPersistentHeader(
+                      delegate: _SliverAppBarDelegate(
+                        TabBar(
+                          tabs: [
+                            Tab(text: AppLocalizations.of(context)!.introduction),
+                            Tab(text: AppLocalizations.of(context)!.comments),
+                          ],
+                        ),
+                      ),
+                      pinned: true,
+                    ),
+                  ];
+                },
+                body: TabBarView(
+                  children: [
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : BlocBuilder<VideoBloc, VideoState>(
+                            builder: (context, state) {
+                              List<Video> recommendedVideos = [];
+                              if (state is VideoLoaded) {
+                                recommendedVideos = state.videos;
+                              }
+                              return VideoIntroPanel(
+                                currentVideo: _currentVideo,
+                                recommendedVideos: recommendedVideos,
+                                isLiked: _isLiked,
+                                isDisliked: _isDisliked,
+                                isFavorited: _isFavorited,
+                                isInteracting: _isInteracting,
+                                onChangeVideo: _changeVideo,
+                                onLike: _toggleLike,
+                                onDislike: _toggleDislike,
+                                onFavorite: _toggleFavorite,
+                              );
+                            },
+                          ),
+                    CommentSection(videoId: _currentVideo.id),
+                  ],
+                ),
+              ),
             ),
-            Expanded(child: _buildMetaAndCommentsSection()),
-          ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildMetaAndCommentsSection() {
-    final l10n = AppLocalizations.of(context)!;
-    return BlocProvider.value(
-      value: _commentBloc,
-      child: DefaultTabController(
-        length: 2,
-        child: Column(
-          children: [
-            TabBar(tabs: [Tab(text: l10n.introduction), Tab(text: l10n.comments)]),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : BlocBuilder<VideoBloc, VideoState>(
-                          builder: (context, state) {
-                            List<Video> recommendedVideos = [];
-                            if (state is VideoLoaded) {
-                              recommendedVideos = state.videos;
-                            }
-                            return VideoIntroPanel(
-                              currentVideo: _currentVideo,
-                              recommendedVideos: recommendedVideos,
-                              isLiked: _isLiked,
-                              isDisliked: _isDisliked,
-                              isFavorited: _isFavorited,
-                              isInteracting: _isInteracting,
-                              onChangeVideo: _changeVideo,
-                              onLike: _toggleLike,
-                              onDislike: _toggleDislike,
-                              onFavorite: _toggleFavorite,
-                            );
-                          },
-                        ),
-                  CommentSection(videoId: _currentVideo.id),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate(this._tabBar);
+
+  final TabBar _tabBar;
+
+  @override
+  double get minExtent => _tabBar.preferredSize.height;
+  @override
+  double get maxExtent => _tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: _tabBar,
     );
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return oldDelegate._tabBar != _tabBar;
   }
 }

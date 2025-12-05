@@ -42,6 +42,7 @@ class Comment extends Equatable {
     List<Comment>? replies,
     int? replyCount,
     String? userVote,
+    bool clearUserVote = false,
   }) {
     return Comment(
       id: id ?? this.id,
@@ -55,7 +56,7 @@ class Comment extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       replies: replies ?? this.replies,
       replyCount: replyCount ?? this.replyCount,
-      userVote: userVote ?? this.userVote,
+      userVote: clearUserVote ? null : userVote ?? this.userVote,
     );
   }
 

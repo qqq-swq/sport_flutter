@@ -162,13 +162,31 @@ class PostCommentBloc extends Bloc<PostCommentEvent, PostCommentState> {
   Future<void> _onCreateComment(
       CreateComment event, Emitter<PostCommentState> emit) async {
     try {
-      await createPostComment(CreatePostCommentParams(postId: event.postId, content: event.content, parentCommentId: event.parentCommentId));
+      // Attempt to create the comment via the use case
+      await createPostComment(CreatePostCommentParams(
+          postId: event.postId,
+          content: event.content,
+          parentCommentId: event.parentCommentId));
+      
+      // On success, trigger a refresh to fetch all comments including the new one
       if (_currentPostId != null) {
-        final comments = await getPostComments(_currentPostId!);
-        emit(PostCommentLoaded(comments));
+        add(FetchPostComments(_currentPostId!));
       }
     } catch (e) {
-      emit(PostCommentError('Failed to submit comment: ${e.toString()}'));
+      // Check if the error is likely due to the parent comment being deleted
+      final bool isParentCommentNotFoundError =
+          event.parentCommentId != null && e.toString().contains('400');
+
+      if (isParentCommentNotFoundError) {
+        // Emit a specific, user-friendly error message
+        emit(PostCommentError(
+            'Failed to reply: The original comment may have been deleted.'));
+      } else {
+        // Emit a more generic error for other failures
+        emit(PostCommentError('Failed to post comment. Please try again.'));
+      }
+      
+      // In either error case, refresh the comments to ensure the UI reflects the latest server state
       if (_currentPostId != null) {
         add(FetchPostComments(_currentPostId!));
       }

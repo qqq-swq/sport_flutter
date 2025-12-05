@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class CommunityPost extends Equatable {
   final int id;
+  final int userId;
   final String username;
   final String? userAvatarUrl;
   final String title;
@@ -16,6 +17,7 @@ class CommunityPost extends Equatable {
 
   const CommunityPost({
     required this.id,
+    required this.userId,
     required this.username,
     this.userAvatarUrl,
     required this.title,
@@ -32,6 +34,7 @@ class CommunityPost extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        userId,
         username,
         userAvatarUrl,
         title,

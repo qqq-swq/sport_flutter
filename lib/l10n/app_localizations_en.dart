@@ -301,4 +301,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get usernameAndEmailMismatch => 'Username and email mismatch';
+
+  @override
+  String get noRepliesYet => 'No replies yet.';
 }

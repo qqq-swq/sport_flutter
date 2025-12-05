@@ -107,7 +107,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
     }
   }
 
-  Future<void> _onPostComment(PostComment event, Emitter<CommentState> emit) async {
+ Future<void> _onPostComment(PostComment event, Emitter<CommentState> emit) async {
     try {
       final headers = await _getAuthHeaders();
       final body = jsonEncode({
@@ -125,10 +125,19 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
       if (response.statusCode == 201) {
         add(FetchComments(event.videoId));
       } else {
-        emit(CommentError('Failed to post comment. Status: ${response.statusCode}'));
+        // If posting fails (e.g., parent comment deleted), show an error and refresh.
+        if (response.statusCode == 400 && event.parentCommentId != null) {
+          emit(CommentError('Failed to reply: The original comment may have been deleted.'));
+        } else {
+          emit(CommentError('Failed to post comment. Status: ${response.statusCode}'));
+        }
+        // Always refresh the comments after a failed post attempt to sync state
+        add(FetchComments(event.videoId));
       }
     } catch (e) {
       emit(CommentError('Failed to post comment: ${e.toString()}'));
+      // Also refresh on other exceptions
+      add(FetchComments(event.videoId));
     }
   }
     
@@ -150,22 +159,22 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
     int optimisticDislikeCount = originalComment.dislikeCount;
 
     if (newVote == 'like') {
-      if (originalVote == 'like') { // Case 1: Cancel like
+      if (isCancelling) { // Case 1: Cancel like
         optimisticLikeCount--;
-      } else if (originalVote == 'dislike') { // Case 2: Switch from dislike to like
+      } else { 
         optimisticLikeCount++;
-        optimisticDislikeCount--;
-      } else { // Case 3: New like
-        optimisticLikeCount++;
+        if (originalVote == 'dislike') { // Case 2: Switch from dislike to like
+          optimisticDislikeCount--;
+        }
       }
     } else if (newVote == 'dislike') {
-      if (originalVote == 'dislike') { // Case 4: Cancel dislike
+      if (isCancelling) { // Case 4: Cancel dislike
         optimisticDislikeCount--;
-      } else if (originalVote == 'like') { // Case 5: Switch from like to dislike
+      } else {
         optimisticDislikeCount++;
-        optimisticLikeCount--;
-      } else { // Case 6: New dislike
-        optimisticDislikeCount++;
+        if (originalVote == 'like') { // Case 5: Switch from like to dislike
+          optimisticLikeCount--;
+        }
       }
     }
 
@@ -173,6 +182,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
       userVote: optimisticUserVote,
       likeCount: optimisticLikeCount,
       dislikeCount: optimisticDislikeCount,
+      clearUserVote: isCancelling,
     );
     final optimisticComments = _updateCommentRecursive(List.from(currentState.comments), optimisticComment);
     

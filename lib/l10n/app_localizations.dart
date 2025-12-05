@@ -571,6 +571,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Username and email mismatch'**
   String get usernameAndEmailMismatch;
+
+  /// No description provided for @noRepliesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No replies yet.'**
+  String get noRepliesYet;
 }
 
 class _AppLocalizationsDelegate
