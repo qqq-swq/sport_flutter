@@ -239,11 +239,11 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             useMaterial3: true, // Enable Material 3
             brightness: Brightness.light,
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple, brightness: Brightness.light),
-            scaffoldBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple, brightness: Brightness.light),
+            scaffoldBackgroundColor: Colors.grey[50],
             visualDensity: VisualDensity.adaptivePlatformDensity,
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.white,
+            appBarTheme: AppBarTheme(
+              backgroundColor: Colors.grey[50],
               foregroundColor: Colors.black87,
               elevation: 0,
               systemOverlayStyle: SystemUiOverlayStyle(
@@ -251,16 +251,17 @@ class MyApp extends StatelessWidget {
                 statusBarIconBrightness: Brightness.dark,
               ),
             ),
-            bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
               backgroundColor: Colors.white,
               unselectedItemColor: Colors.grey,
-              elevation: 0,
-              // selectedItemColor is now derived from colorScheme.primary
+              elevation: 1,
+              selectedItemColor: Colors.deepPurple, // Explicitly set selected item color
             ),
-            tabBarTheme: const TabBarThemeData(
-              indicatorSize: TabBarIndicatorSize.label, // Better indicator style
+            tabBarTheme: TabBarThemeData(
+              indicatorSize: TabBarIndicatorSize.label,
               unselectedLabelColor: Colors.grey,
-              // labelColor and indicatorColor are now derived from colorScheme.primary
+              labelColor: Colors.deepPurple, // Explicitly set label color
+              indicatorColor: Colors.deepPurple, // Explicitly set indicator color
             ),
             textTheme: mergedTextTheme,
           ),

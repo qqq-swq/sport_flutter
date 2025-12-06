@@ -20,7 +20,15 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthInitial extends AuthState {}
-class AuthLoading extends AuthState {}
+
+class AuthLoading extends AuthState {
+  final String? loadingType;
+
+  const AuthLoading({this.loadingType});
+
+  @override
+  List<Object?> get props => [loadingType];
+}
 
 class ResettingPasswordInProgress extends AuthState {}
 
@@ -228,6 +236,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onForgotPasswordSendCode(ForgotPasswordSendCodeEvent event, Emitter<AuthState> emit) async {
+    emit(const AuthLoading(loadingType: 'ForgotPasswordSendCode'));
     try {
       await forgotPasswordSendCodeUseCase(event.username, event.email);
       emit(ForgotPasswordCodeSent());
@@ -237,7 +246,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onForgotPasswordReset(ForgotPasswordResetEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthLoading(loadingType: 'ForgotPasswordReset'));
     try {
       await forgotPasswordResetUseCase(event.username, event.email, event.code, event.newPassword);
       emit(ForgotPasswordSuccess());
@@ -247,7 +256,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     try {
       await registerUseCase(event.username, event.email, event.password, event.code);
       emit(AuthRegistrationSuccess());
@@ -257,7 +266,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     try {
       final token = await loginUseCase(event.username, event.password);
       final prefs = await SharedPreferences.getInstance();
@@ -276,7 +285,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onUpdateProfile(UpdateProfileEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     try {
       final updatedUser = await updateUserProfileUseCase(
         username: event.username,
