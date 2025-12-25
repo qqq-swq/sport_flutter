@@ -168,6 +168,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hard => 'Hard';
 
   @override
+  String get ultimate => 'Ultimate';
+
+  @override
   String get invalidEmail => 'Invalid email address';
 
   @override

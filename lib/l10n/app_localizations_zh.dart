@@ -167,6 +167,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hard => '困难';
 
   @override
+  String get ultimate => '终极';
+
+  @override
   String get invalidEmail => '无效的电子邮件地址';
 
   @override

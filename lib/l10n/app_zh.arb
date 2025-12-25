@@ -63,6 +63,7 @@
   "easy": "简单",
   "medium": "中等",
   "hard": "困难",
+  "ultimate": "终极",
   "invalidEmail": "无效的电子邮件地址",
   "register": "注册",
   "registrationSuccessful": "注册成功",

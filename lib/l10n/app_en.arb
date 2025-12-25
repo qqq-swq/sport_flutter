@@ -63,6 +63,7 @@
   "easy": "Easy",
   "medium": "Medium",
   "hard": "Hard",
+  "ultimate": "Ultimate",
   "invalidEmail": "Invalid email address",
   "register": "Register",
   "registrationSuccessful": "Registration successful",

@@ -51,7 +51,7 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
     final unfavoriteVideoUseCase = UnfavoriteVideo(videoRepository);
     final cacheManager = RepositoryProvider.of<CacheManager>(context);
 
-    _videoBlocs = List.generate(3, (i) {
+    _videoBlocs = List.generate(4, (i) {
       final bloc = VideoBloc(
         getVideos: getVideosUseCase,
         favoriteVideo: favoriteVideoUseCase,
@@ -97,6 +97,7 @@ class _VideosPageState extends State<VideosPage> with RouteAware {
                 _VideoSection(title: l10n.easy, difficulty: Difficulty.Easy, bloc: _videoBlocs[0]),
                 _VideoSection(title: l10n.medium, difficulty: Difficulty.Medium, bloc: _videoBlocs[1]),
                 _VideoSection(title: l10n.hard, difficulty: Difficulty.Hard, bloc: _videoBlocs[2]),
+                _VideoSection(title: l10n.ultimate, difficulty: Difficulty.Ultimate, bloc: _videoBlocs[3]),
               ]
           ],
         ),

@@ -4,6 +4,7 @@ enum Difficulty {
   Easy,
   Medium,
   Hard,
+  Ultimate,
 }
 
 abstract class VideoRepository {

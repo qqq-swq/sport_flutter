@@ -326,6 +326,12 @@ abstract class AppLocalizations {
   /// **'Hard'**
   String get hard;
 
+  /// No description provided for @ultimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultimate'**
+  String get ultimate;
+
   /// No description provided for @invalidEmail.
   ///
   /// In en, this message translates to:
