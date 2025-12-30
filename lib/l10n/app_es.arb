@@ -1,0 +1,142 @@
+{
+  "appTitle": "Deporte Flutter",
+  "upNext": "Siguiente",
+  "videoViews": "{count, plural, =0{Sin vistas} =1{1 vista} other{{count} vistas}} • {date}",
+  "@videoViews": {
+    "placeholders": {
+      "count": {},
+      "date": {}
+    }
+  },
+  "daysAgo": "{count, plural, =0{Hoy} =1{Hace 1 día} other{Hace {count} días}}",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "weeksAgo": "{count, plural, =0{Esta semana} =1{Hace 1 semana} other{Hace {count} semanas}}",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hoursAgo": "{count, plural, =0{Justo ahora} =1{Hace 1 hora} other{Hace {count} horas}}",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "minutesAgo": "{count, plural, =0{Justo ahora} =1{Hace 1 minuto} other{Hace {count} minutos}}",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "justNow": "Justo ahora",
+  "showMore": "Mostrar más",
+  "showLess": "Mostrar menos",
+  "dislike": "No me gusta",
+  "favorite": "Favorito",
+  "tenThousand": "mil",
+  "home": "Inicio",
+  "community": "Comunidad",
+  "profile": "Perfil",
+  "login": "Iniciar sesión",
+  "invalidUsernameOrPassword": "Nombre de usuario o contraseña inválidos",
+  "username": "Nombre de usuario",
+  "enterUsername": "Por favor, ingresa tu nombre de usuario",
+  "password": "Contraseña",
+  "enterPassword": "Por favor, ingresa tu contraseña",
+  "dontHaveAnAccount": "¿No tienes una cuenta? Regístrate",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "myProfile": "Mi perfil",
+  "privacyPolicy": "Política de privacidad",
+  "myPosts": "Mis publicaciones",
+  "myFavorites": "Mis favoritos",
+  "language": "Idioma",
+  "editProfile": "Editar perfil",
+  "selectLanguage": "Seleccionar idioma",
+  "logout": "Cerrar sesión",
+  "logoutConfirmation": "¿Estás seguro de que quieres cerrar sesión?",
+  "cancel": "Cancelar",
+  "confirmLogout": "Cerrar sesión",
+  "easy": "Fácil",
+  "medium": "Medio",
+  "hard": "Difícil",
+  "ultimate": "Definitivo",
+  "invalidEmail": "Dirección de correo electrónico inválida",
+  "register": "Registrarse",
+  "registrationSuccessful": "Registro exitoso",
+  "codeSent": "Código de verificación enviado",
+  "email": "Correo electrónico",
+  "enterValidEmail": "Por favor, ingresa una dirección de correo electrónico válida",
+  "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+  "verificationCode": "Código de verificación",
+  "enterVerificationCode": "Por favor, ingresa el código de verificación",
+  "sendVerificationCode": "Enviar código",
+  "agreement": "Al registrarte, aceptas nuestra ",
+  "createPost": "Crear publicación",
+  "publish": "Publicar",
+  "title": "Título",
+  "content": "Contenido",
+  "deletePost": "Eliminar publicación",
+  "deletePostConfirmation": "¿Estás seguro de que quieres eliminar esta publicación?",
+  "delete": "Eliminar",
+  "comments": "Comentarios",
+  "privacyPolicyContent": "Esta Política de Privacidad describe nuestras políticas y procedimientos sobre la recolección, uso y divulgación de tu información cuando usas el Servicio y te informa sobre tus derechos de privacidad y cómo la ley te protege. Usamos tus datos personales para proporcionar y mejorar el Servicio. Al usar el Servicio, aceptas la recolección y uso de información de acuerdo con esta Política de Privacidad.\n\n**Recolección y uso de información**\n\n**Tipos de datos recolectados**\n*   **Datos personales:** Al usar nuestro Servicio, podemos pedirte que nos proporciones cierta información personal identificable que pueda usarse para contactarte o identificarte. La información personal identificable puede incluir, pero no se limita a: dirección de correo electrónico, nombre de usuario y foto de perfil.\n*   **Datos de uso:** Los datos de uso se recolectan automáticamente al usar el Servicio. Esto puede incluir información como la dirección IP de tu dispositivo, tipo de navegador, versión del navegador, las páginas de nuestro Servicio que visitas, la fecha y hora de tu visita, el tiempo que pasas en esas páginas, identificadores únicos de dispositivo y otros datos de diagnóstico.\n*   **Contenido generado por el usuario:** Recolectamos el contenido que creas en nuestro Servicio, que incluye videos e imágenes que subes, comentarios que publicas, me gustas y favoritos.\n\n**Uso de tus datos personales**\nLa Compañía puede usar datos personales para los siguientes fines:\n*   Proporcionar y mantener nuestro Servicio, incluyendo monitorear el uso de nuestro Servicio.\n*   Gestionar tu Cuenta: gestionar tu registro como usuario del Servicio.\n*   Contactarte: Para contactarte por correo electrónico con respecto a actualizaciones o comunicaciones informativas relacionadas con las funcionalidades, productos o servicios contratados.\n*   Proporcionarte noticias, ofertas especiales e información general sobre otros bienes, servicios y eventos que ofrecemos.\n*   Gestionar tus solicitudes: Atender y gestionar tus solicitudes a nosotros.\n\n**Divulgación de tu información**\nNo vendemos tu información personal. Podemos compartir tu información con proveedores de servicios de terceros que prestan servicios en nuestro nombre, como servicios de alojamiento y análisis.",
+  "introduction": "Introducción",
+  "replyingTo": "Respondiendo a {username}",
+  "@replyingTo": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "postYourComment": "Publica tu comentario",
+  "beTheFirstToComment": "Se el primero en comentar",
+  "viewAllReplies": "Ver todas las {count} respuestas",
+  "@viewAllReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentDetails": "{count} respuestas",
+  "@commentDetails": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addAComment": "Agregar un comentario",
+  "replies": "Respuestas",
+  "fileLimitExceeded": "Solo puedes seleccionar hasta {count} archivos.",
+  "@fileLimitExceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectPicturesFromAlbum": "Selecciona imágenes del álbum",
+  "selectVideoFromAlbum": "Selecciona video del álbum",
+  "sportVideos": "Videos deportivos",
+  "resetPassword": "Restablecer contraseña",
+  "resetYourPassword": "Restablece tu contraseña",
+  "resetPasswordInstruction": "Por favor, ingresa tu dirección de correo electrónico. Te enviaremos un código de verificación para restablecer tu contraseña.",
+  "newPassword": "Nueva contraseña",
+  "confirmNewPassword": "Confirmar nueva contraseña",
+  "passwordsDoNotMatch": "Las dos contraseñas no coinciden",
+  "confirmReset": "Confirmar restablecimiento",
+  "passwordResetSuccessLogin": "La contraseña se ha restablecido. Por favor, inicia sesión.",
+  "usernameAndEmailMismatch": "El nombre de usuario y el correo electrónico no coinciden",
+  "noRepliesYet": "Aún no hay respuestas.",
+  "invitationCode": "Código de invitación",
+  "incorrectInvitationCode": "Código de invitación incorrecto",
+  "pleaseRequestVerificationCodeFirst": "Por favor, solicita el código de verificación primero",
+  "invalidVerificationCode": "Código de verificación inválido.",
+  "videoLoadError": "No se pudo cargar el video"
+}

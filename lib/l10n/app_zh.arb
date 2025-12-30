@@ -94,7 +94,7 @@
     }
   },
   "postYourComment": "发表您的评论",
-  "beTheFirstToComment": "成为第一个发表评论的人",
+  "beTheFirstToComment": "还没有人发言, 快来抢个沙发吧!",
   "viewAllReplies": "查看全部 {count} 条回复",
   "@viewAllReplies": {
     "placeholders": {
@@ -138,5 +138,6 @@
   "incorrectInvitationCode": "邀请码不正确",
   "pleaseRequestVerificationCodeFirst": "请先获取验证码",
   "invalidVerificationCode": "无效的验证码。",
-  "videoLoadError": "无法加载视频"
+  "videoLoadError": "无法加载视频",
+  "noPostsYet": "还没有人发言，快来抢个沙发吧！"
 }

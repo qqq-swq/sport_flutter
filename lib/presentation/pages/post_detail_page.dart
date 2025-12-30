@@ -13,6 +13,7 @@ import 'package:sport_flutter/presentation/pages/post_detail/widgets/comment_sec
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/post_header.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/sliver_persistent_header_delegate.dart';
 import 'package:sport_flutter/presentation/widgets/shimmer.dart';
+import 'package:sport_flutter/services/translation_service.dart';
 import 'package:iconsax/iconsax.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -178,6 +179,19 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     );
                   }
                   if (state is PostCommentLoaded) {
+                    if (state.comments.isEmpty) {
+                      return SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 40.0),
+                            child: Text(
+                              AppLocalizations.of(context)!.beTheFirstToComment,
+                              style: const TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
                     return CommentSection(postId: widget.post.id, onReplyTapped: _onReplyTapped);
                   }
                   if (state is PostCommentError) {
@@ -197,6 +211,55 @@ class _PostDetailPageState extends State<PostDetailPage> {
         replyingTo: _replyingTo,
         onCancelReply: _onCancelReply,
       ),
+    );
+  }
+}
+
+// A widget that translates the given text and displays it.
+class _TranslatedText extends StatefulWidget {
+  final String text;
+  final TextStyle style;
+
+  const _TranslatedText({required this.text, required this.style});
+
+  @override
+  State<_TranslatedText> createState() => _TranslatedTextState();
+}
+
+class _TranslatedTextState extends State<_TranslatedText> {
+  String? _translatedText;
+
+  @override
+  void initState() {
+    super.initState();
+    _translateText();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TranslatedText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.text != oldWidget.text) {
+      _translateText();
+    }
+  }
+
+  Future<void> _translateText() async {
+    if (!mounted) return;
+    final locale = Localizations.localeOf(context);
+    final translationService = context.read<TranslationService>();
+    final translated = await translationService.translate(widget.text, locale.languageCode);
+    if (mounted) {
+      setState(() {
+        _translatedText = translated;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _translatedText ?? widget.text,
+      style: widget.style,
     );
   }
 }

@@ -57,7 +57,7 @@ class _CommunityView extends StatelessWidget {
         builder: (context, state) {
           if (state is CommunityLoaded) {
             if (state.posts.isEmpty) {
-              return const Center(child: Text('还没有人发言，快来抢个沙发吧！'));
+              return Center(child: Text(l10n.beTheFirstToComment));
             }
             return RefreshIndicator(
               onRefresh: () async => context.read<CommunityBloc>().add(FetchPosts()),

@@ -1,0 +1,17 @@
+{
+  "de": [
+    "noPostsYet"
+  ],
+
+  "es": [
+    "noPostsYet"
+  ],
+
+  "fr": [
+    "noPostsYet"
+  ],
+
+  "ru": [
+    "noPostsYet"
+  ]
+}

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:sport_flutter/presentation/pages/home_page.dart';
+import 'package:sport_flutter/services/translation_service.dart';
 import 'l10n/app_localizations.dart';
 import 'package:timeago/timeago.dart' as timeago;
 // ignore: implementation_imports
@@ -124,6 +125,7 @@ void main() async {
 
   // Services
   final ossUploadService = OssUploadService(stsDataSource: stsRemoteDataSource, dio: dioClient);
+  final translationService = TranslationService();
 
   // Cache
   final videoCacheManager = CustomVideoCacheManager().instance;
@@ -144,6 +146,7 @@ void main() async {
         RepositoryProvider.value(value: favoriteVideoUseCase),
         RepositoryProvider.value(value: unfavoriteVideoUseCase),
         RepositoryProvider.value(value: getRecommendedVideosUseCase),
+        RepositoryProvider.value(value: translationService),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -232,10 +235,7 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('en', ''),
-            Locale('zh', ''),
-          ],
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: ThemeData(
             useMaterial3: true, // Enable Material 3
             brightness: Brightness.light,

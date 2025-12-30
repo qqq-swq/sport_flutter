@@ -15,15 +15,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  // By creating the pages here and not marking them as 'const', we ensure
-  // they are instantiated once and get a correct BuildContext.
-  // Using 'late' defers initialization until they are first accessed.
-  late final List<Widget> _widgetOptions = [
-    const VideosPage(),
-    const CommunityPage(),
-    const ProfilePage(),
-  ];
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -33,10 +24,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+
+    // By moving the list creation inside the build method and using a key,
+    // we ensure that VideosPage is rebuilt when the language changes.
+    final List<Widget> widgetOptions = [
+      VideosPage(key: ValueKey('videos_${locale.languageCode}')), // Add key to force rebuild
+      const CommunityPage(),
+      const ProfilePage(),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: _widgetOptions,
+        children: widgetOptions,
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [

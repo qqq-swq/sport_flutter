@@ -1,0 +1,143 @@
+{
+  "appTitle": "スポーツフラッター",
+  "upNext": "次へ",
+  "videoViews": "{count, plural, =0{閲覧数なし} =1{閲覧数1件} other{閲覧数{count}件}} • {date}",
+  "@videoViews": {
+    "placeholders": {
+      "count": {},
+      "date": {}
+    }
+  },
+  "daysAgo": "{count, plural, =0{今日} =1{1日前} other{{count}日前}}",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "weeksAgo": "{count, plural, =0{今週} =1{1週間前} other{{count}週間前}}",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hoursAgo": "{count, plural, =0{たった今} =1{1時間前} other{{count}時間前}}",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "minutesAgo": "{count, plural, =0{たった今} =1{1分前} other{{count}分前}}",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "justNow": "たった今",
+  "showMore": "もっと表示",
+  "showLess": "少なく表示",
+  "dislike": "嫌い",
+  "favorite": "お気に入り",
+  "tenThousand": "万",
+  "home": "ホーム",
+  "community": "コミュニティ",
+  "profile": "プロフィール",
+  "login": "ログイン",
+  "invalidUsernameOrPassword": "ユーザー名またはパスワードが不正です",
+  "username": "ユーザー名",
+  "enterUsername": "ユーザー名を入力してください",
+  "password": "パスワード",
+  "enterPassword": "パスワードを入力してください",
+  "dontHaveAnAccount": "アカウントがないですか？新規登録",
+  "forgotPassword": "パスワードを忘れましたか？",
+  "myProfile": "マイプロフィール",
+  "privacyPolicy": "プライバシーポリシー",
+  "myPosts": "マイ投稿",
+  "myFavorites": "マイお気に入り",
+  "language": "言語",
+  "editProfile": "プロフィール編集",
+  "selectLanguage": "言語選択",
+  "logout": "ログアウト",
+  "logoutConfirmation": "本当にログアウトしますか？",
+  "cancel": "キャンセル",
+  "confirmLogout": "ログアウト",
+  "easy": "イージー",
+  "medium": "ミディアム",
+  "hard": "ハード",
+  "ultimate": "アルティメット",
+  "invalidEmail": "無効なメールアドレスです",
+  "register": "新規登録",
+  "registrationSuccessful": "登録が完了しました",
+  "codeSent": "確認コードを送信しました",
+  "email": "メールアドレス",
+  "enterValidEmail": "有効なメールアドレスを入力してください",
+  "passwordTooShort": "パスワードは最低6文字以上です",
+  "verificationCode": "確認コード",
+  "enterVerificationCode": "確認コードを入力してください",
+  "sendVerificationCode": "コード送信",
+  "agreement": "新規登録することで、本サービスの ",
+  "createPost": "投稿作成",
+  "publish": "公開",
+  "title": "タイトル",
+  "content": "コンテンツ",
+  "deletePost": "投稿削除",
+  "deletePostConfirmation": "この投稿を本当に削除しますか？",
+  "delete": "削除",
+  "comments": "コメント",
+  "privacyPolicyContent": "本プライバシーポリシーは、本サービスをご利用になる際のお客様の情報の収集、使用、開示に関する当社の方針と手順を説明し、お客様のプライバシーに関する権利と法律による保護方法をお知らせします。当社は、本サービスの提供と改善のためにお客様の個人情報を使用します。本サービスをご利用になることで、お客様は本プライバシーポリシーに従った情報の収集と使用に同意したものとみなされます。\n\n**情報の収集と使用**\n\n**収集するデータの種類**\n*   **個人情報:** 本サービスの利用中、当社はお客様に連絡したり特定したりするために、特定の個人識別情報の提供をお願いする場合があります。個人識別情報には、以下のものが含まれますが、これらに限られません：メールアドレス、ユーザー名、プロフィール写真。\n*   **利用データ:** 利用データは、本サービスの利用時に自動的に収集されます。これには、お客様のデバイスのIPアドレス、ブラウザの種類、ブラウザのバージョン、アクセスした本サービスのページ、アクセス日時、各ページでの滞在時間、固有のデバイス識別子、その他の診断データなどの情報が含まれます。\n*   **ユーザー生成コンテンツ:** 当社は、お客様が本サービス上で作成したコンテンツを収集します。これには、お客様がアップロードした動画や画像、投稿したコメント、いいね、お気に入りが含まれます。\n\n**お客様の個人情報の使用**\n当社は、以下の目的で個人情報を使用する場合があります：\n*   本サービスの提供と維持、含む本サービスの利用状況の監視。\n*   お客様のアカウント管理：本サービスのユーザーとしてのお客様の登録管理。\n*   お客様への連絡：機能、製品、または契約したサービスに関する更新情報や案内通知をメールでお客様に連絡。\n*   当社が提供する他の商品、サービス、イベントに関するニュース、特別オファー、一般的な情報をお客様に提供。\n*   お客様のリクエスト管理：当社へのお客様のリクエストの受付と管理。\n\n**お客様の情報の開示**\n当社は、お客様の個人情報を販売しません。当社は、ホスティングサービスや分析など、当社の代わりにサービスを提供する第三者サービスプロバイダーとお客様の情報を共有する場合があります。",
+  "introduction": "紹介",
+  "replyingTo": "{username}さんへの返信",
+  "@replyingTo": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "postYourComment": "コメントを投稿",
+  "beTheFirstToComment": "最初のコメント投稿者になろう",
+  "viewAllReplies": "すべて{count}件の返信を表示",
+  "@viewAllReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentDetails": "{count}件の返信",
+  "@commentDetails": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addAComment": "コメントを追加",
+  "replies": "返信",
+  "fileLimitExceeded": "最大{count}件のファイルまで選択できます。",
+  "@fileLimitExceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectPicturesFromAlbum": "アルバムから写真を選択",
+  "selectVideoFromAlbum": "アルバムから動画を選択",
+  "sportVideos": "スポーツ動画",
+  "resetPassword": "パスワードリセット",
+  "resetYourPassword": "パスワードリセット",
+  "resetPasswordInstruction": "メールアドレスを入力してください。パスワードリセットのための確認コードを送信します。",
+  "newPassword": "新しいパスワード",
+  "confirmNewPassword": "新しいパスワード確認",
+  "passwordsDoNotMatch": "二つのパスワードが一致しません",
+  "confirmReset": "リセット確認",
+  "passwordResetSuccessLogin": "パスワードをリセットしました。ログインしてください。",
+  "usernameAndEmailMismatch": "ユーザー名とメールアドレスが一致しません",
+  "noRepliesYet": "まだ返信がありません。",
+  "invitationCode": "招待コード",
+  "incorrectInvitationCode": "不正な招待コードです",
+  "pleaseRequestVerificationCodeFirst": "まず確認コードを要求してください",
+  "invalidVerificationCode": "無効な確認コードです。",
+  "videoLoadError": "動画を読み込めません",
+  "noPostsYet": "まだ投稿がありません。一番乗りになろう！"
+}

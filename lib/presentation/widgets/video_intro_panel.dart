@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:sport_flutter/domain/entities/video.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
+import 'package:sport_flutter/presentation/widgets/translated_text.dart';
 import 'package:sport_flutter/presentation/widgets/video_action_buttons.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -160,6 +161,7 @@ class _VideoIntroPanelState extends State<VideoIntroPanel> {
   Widget _buildRecommendedItem(BuildContext context, Video video) {
     const double imageWidth = 150.0;
     const double imageHeight = imageWidth * 9.0 / 16.0;
+    final locale = Localizations.localeOf(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -190,11 +192,10 @@ class _VideoIntroPanelState extends State<VideoIntroPanel> {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: Text(
-                        video.title,
-                        style: Theme.of(context).textTheme.titleMedium,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: TranslatedText(
+                        key: ValueKey('${video.title}_${locale.languageCode}'),
+                        text: video.title,
+                        style: Theme.of(context).textTheme.titleMedium ?? const TextStyle(),
                       ),
                     ),
                     Expanded(

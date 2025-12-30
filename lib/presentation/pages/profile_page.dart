@@ -15,6 +15,18 @@ import 'package:iconsax/iconsax.dart';
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
+  // Define the list of supported languages
+  static final List<Map<String, String>> _supportedLanguages = [
+    {'name': 'English', 'code': 'en'},
+    {'name': '中文', 'code': 'zh'},
+    {'name': 'Français', 'code': 'fr'},
+    {'name': 'Deutsch', 'code': 'de'},
+    {'name': 'Русский', 'code': 'ru'},
+    {'name': 'Español', 'code': 'es'},
+    {'name': '日本語', 'code': 'ja'},
+    {'name': '한국어', 'code': 'ko'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -171,22 +183,15 @@ class ProfilePage extends StatelessWidget {
           title: Text(l10n.selectLanguage),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('English'),
+            children: _supportedLanguages.map((lang) {
+              return ListTile(
+                title: Text(lang['name']!),
                 onTap: () {
-                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('en', '')));
+                  context.read<LocaleBloc>().add(ChangeLocale(Locale(lang['code']!)));
                   Navigator.of(dialogContext).pop();
                 },
-              ),
-              ListTile(
-                title: const Text('中文'),
-                onTap: () {
-                  context.read<LocaleBloc>().add(const ChangeLocale(Locale('zh', 'CN')));
-                  Navigator.of(dialogContext).pop();
-                },
-              ),
-            ],
+              );
+            }).toList(),
           ),
         );
       },

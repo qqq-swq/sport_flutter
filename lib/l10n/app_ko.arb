@@ -1,0 +1,143 @@
+{
+  "appTitle": "스포츠 플러터",
+  "upNext": "다음",
+  "videoViews": "{count, plural, =0{조회수 없음} =1{조회수 1회} other{조회수 {count}회}} • {date}",
+  "@videoViews": {
+    "placeholders": {
+      "count": {},
+      "date": {}
+    }
+  },
+  "daysAgo": "{count, plural, =0{오늘} =1{1일 전} other{{count}일 전}}",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "weeksAgo": "{count, plural, =0{이번 주} =1{1주 전} other{{count}주 전}}",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hoursAgo": "{count, plural, =0{방금 전} =1{1시간 전} other{{count}시간 전}}",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "minutesAgo": "{count, plural, =0{방금 전} =1{1분 전} other{{count}분 전}}",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "justNow": "방금 전",
+  "showMore": "더 보기",
+  "showLess": "적게 보기",
+  "dislike": "싫어요",
+  "favorite": "즐겨찾기",
+  "tenThousand": "만",
+  "home": "홈",
+  "community": "커뮤니티",
+  "profile": "프로필",
+  "login": "로그인",
+  "invalidUsernameOrPassword": "아이디 또는 비밀번호가 올바르지 않습니다",
+  "username": "아이디",
+  "enterUsername": "아이디를 입력해주세요",
+  "password": "비밀번호",
+  "enterPassword": "비밀번호를 입력해주세요",
+  "dontHaveAnAccount": "계정이 없으신가요? 회원가입",
+  "forgotPassword": "비밀번호를 잊으셨나요?",
+  "myProfile": "내 프로필",
+  "privacyPolicy": "개인정보 처리방침",
+  "myPosts": "내 게시물",
+  "myFavorites": "내 즐겨찾기",
+  "language": "언어",
+  "editProfile": "프로필 편집",
+  "selectLanguage": "언어 선택",
+  "logout": "로그아웃",
+  "logoutConfirmation": "정말로 로그아웃하시겠어요?",
+  "cancel": "취소",
+  "confirmLogout": "로그아웃",
+  "easy": "쉬움",
+  "medium": "중간",
+  "hard": "어려움",
+  "ultimate": "극한",
+  "invalidEmail": "유효하지 않은 이메일 주소입니다",
+  "register": "회원가입",
+  "registrationSuccessful": "회원가입 성공",
+  "codeSent": "인증코드가 발송되었습니다",
+  "email": "이메일",
+  "enterValidEmail": "유효한 이메일 주소를 입력해주세요",
+  "passwordTooShort": "비밀번호는 최소 6자 이상이어야 합니다",
+  "verificationCode": "인증코드",
+  "enterVerificationCode": "인증코드를 입력해주세요",
+  "sendVerificationCode": "코드 발송",
+  "agreement": "회원가입을 함으로써 귀하는 본인의 ",
+  "createPost": "게시물 작성",
+  "publish": "게시",
+  "title": "제목",
+  "content": "내용",
+  "deletePost": "게시물 삭제",
+  "deletePostConfirmation": "정말로 이 게시물을 삭제하시겠어요?",
+  "delete": "삭제",
+  "comments": "댓글",
+  "privacyPolicyContent": "본 개인정보 처리방침은 귀하가 서비스를 사용할 때 귀하의 정보 수집, 사용 및 공개에 관한 저희의 정책과 절차를 설명하며, 귀하의 개인정보 보호 권리 및 법률에 따른 보호 방식을 안내합니다. 저희는 서비스 제공 및 개선을 위해 귀하의 개인정보를 사용합니다. 서비스를 사용함으로써 귀하는 본 개인정보 처리방침에 따라 정보 수집 및 사용에 동의하는 것으로 간주됩니다.\n\n**정보 수집 및 사용**\n\n**수집되는 데이터 유형**\n*   **개인정보:** 저희 서비스 사용 중에 저희는 귀하에게 연락하거나 식별할 수 있는 특정 개인 식별 정보를 요청할 수 있습니다. 개인 식별 정보에는 다음이 포함될 수 있지만 이에 국한되지 않습니다: 이메일 주소, 아이디 및 프로필 사진.\n*   **사용 데이터:** 사용 데이터는 서비스 사용 시 자동으로 수집됩니다. 이에는 귀하의 장치 IP 주소, 브라우저 유형, 브라우저 버전, 방문한 저희 서비스 페이지, 방문 날짜 및 시간, 해당 페이지에서 소요된 시간, 고유 장치 식별자 및 기타 진단 데이터 등의 정보가 포함될 수 있습니다.\n*   **사용자 생성 콘텐츠:** 저희는 귀하가 저희 서비스에서 생성한 콘텐츠를 수집합니다. 이에는 귀하가 업로드한 비디오 및 이미지, 게시한 댓글, 좋아요 및 즐겨찾기가 포함됩니다.\n\n**귀하의 개인정보 사용**\n회사는 다음과 같은 목적으로 개인정보를 사용할 수 있습니다:\n*   저희 서비스 제공 및 유지 관리, 포함하여 저희 서비스 사용 모니터링.\n*   귀하의 계정 관리: 서비스 사용자로서의 귀하의 등록 관리.\n*   귀하에게 연락: 기능, 제품 또는 계약된 서비스와 관련된 업데이트 또는 정보 통신을 이메일로 귀하에게 연락.\n*   저희가 제공하는 기타 상품, 서비스 및 이벤트에 대한 뉴스, 특별 할인 및 일반 정보 제공.\n*   귀하의 요청 관리: 저희에 대한 귀하의 요청 접수 및 관리.\n\n**귀하의 정보 공유**\n저희는 귀하의 개인정보를 판매하지 않습니다. 저희는 호스팅 서비스 및 분석과 같이 저희 대신 서비스를 수행하는 제3자 서비스 제공업체와 귀하의 정보를 공유할 수 있습니다.",
+  "introduction": "소개",
+  "replyingTo": "{username}님에게 답글",
+  "@replyingTo": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "postYourComment": "댓글 작성",
+  "beTheFirstToComment": "첫 댓글을 작성해보세요!",
+  "viewAllReplies": "모든 {count}개의 답글 보기",
+  "@viewAllReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentDetails": "{count}개의 답글",
+  "@commentDetails": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addAComment": "댓글 추가",
+  "replies": "답글",
+  "fileLimitExceeded": "최대 {count}개의 파일만 선택할 수 있습니다.",
+  "@fileLimitExceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectPicturesFromAlbum": "앨범에서 사진 선택",
+  "selectVideoFromAlbum": "앨범에서 비디오 선택",
+  "sportVideos": "스포츠 비디오",
+  "resetPassword": "비밀번호 재설정",
+  "resetYourPassword": "비밀번호 재설정",
+  "resetPasswordInstruction": "이메일 주소를 입력해주세요. 비밀번호 재설정을 위한 인증코드를 보내드릴 것입니다.",
+  "newPassword": "새 비밀번호",
+  "confirmNewPassword": "새 비밀번호 확인",
+  "passwordsDoNotMatch": "두 비밀번호가 일치하지 않습니다",
+  "confirmReset": "재설정 확인",
+  "passwordResetSuccessLogin": "비밀번호가 재설정되었습니다. 로그인해주세요.",
+  "usernameAndEmailMismatch": "아이디와 이메일이 일치하지 않습니다",
+  "noRepliesYet": "아직 답글이 없습니다.",
+  "invitationCode": "초대 코드",
+  "incorrectInvitationCode": "잘못된 초대 코드입니다",
+  "pleaseRequestVerificationCodeFirst": "먼저 인증코드를 요청해주세요",
+  "invalidVerificationCode": "유효하지 않은 인증코드입니다.",
+  "videoLoadError": "비디오를 불러올 수 없습니다",
+  "noPostsYet": "아직 게시물이 없습니다. 첫 번째 게시물을 작성해보세요!"
+}

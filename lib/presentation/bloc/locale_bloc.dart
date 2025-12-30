@@ -30,7 +30,7 @@ class LocaleState extends Equatable {
 
 // BLoC
 class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
-  LocaleBloc() : super(const LocaleState(Locale('zh', 'CN'))) { // Default to Chinese
+  LocaleBloc() : super(const LocaleState(Locale('zh'))) { // Default to Chinese
     on<LoadLocale>(_onLoadLocale);
     on<ChangeLocale>(_onChangeLocale);
   }
@@ -38,21 +38,16 @@ class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
   Future<void> _onLoadLocale(LoadLocale event, Emitter<LocaleState> emit) async {
     final prefs = await SharedPreferences.getInstance();
     final languageCode = prefs.getString('languageCode');
-    final countryCode = prefs.getString('countryCode');
 
     if (languageCode != null) {
-      emit(LocaleState(Locale(languageCode, countryCode)));
+      emit(LocaleState(Locale(languageCode)));
     }
   }
 
   Future<void> _onChangeLocale(ChangeLocale event, Emitter<LocaleState> emit) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('languageCode', event.locale.languageCode);
-    if (event.locale.countryCode != null) {
-      await prefs.setString('countryCode', event.locale.countryCode!);
-    } else {
-      await prefs.remove('countryCode');
-    }
+    await prefs.remove('countryCode'); // Clean up old preference
     emit(LocaleState(event.locale));
   }
 }

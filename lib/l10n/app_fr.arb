@@ -1,0 +1,142 @@
+{
+  "appTitle": "Sport Flutter",
+  "upNext": "Suivant",
+  "videoViews": "{count, plural, =0{Aucune vue} =1{1 vue} other{{count} vues}} • {date}",
+  "@videoViews": {
+    "placeholders": {
+      "count": {},
+      "date": {}
+    }
+  },
+  "daysAgo": "{count, plural, =0{Aujourd'hui} =1{Il y a 1 jour} other{Il y a {count} jours}}",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "weeksAgo": "{count, plural, =0{Cette semaine} =1{Il y a 1 semaine} other{Il y a {count} semaines}}",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hoursAgo": "{count, plural, =0{À l'instant} =1{Il y a 1 heure} other{Il y a {count} heures}}",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "minutesAgo": "{count, plural, =0{À l'instant} =1{Il y a 1 minute} other{Il y a {count} minutes}}",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "justNow": "À l'instant",
+  "showMore": "Voir plus",
+  "showLess": "Voir moins",
+  "dislike": "Ne pas aimer",
+  "favorite": "Favori",
+  "tenThousand": "k",
+  "home": "Accueil",
+  "community": "Communauté",
+  "profile": "Profil",
+  "login": "Se connecter",
+  "invalidUsernameOrPassword": "Nom d'utilisateur ou mot de passe invalide",
+  "username": "Nom d'utilisateur",
+  "enterUsername": "Veuillez entrer votre nom d'utilisateur",
+  "password": "Mot de passe",
+  "enterPassword": "Veuillez entrer votre mot de passe",
+  "dontHaveAnAccount": "Pas de compte ? S'inscrire",
+  "forgotPassword": "Mot de passe oublié ?",
+  "myProfile": "Mon profil",
+  "privacyPolicy": "Politique de confidentialité",
+  "myPosts": "Mes publications",
+  "myFavorites": "Mes favoris",
+  "language": "Langue",
+  "editProfile": "Éditer le profil",
+  "selectLanguage": "Sélectionner la langue",
+  "logout": "Se déconnecter",
+  "logoutConfirmation": "Êtes-vous sûr de vouloir vous déconnecter ?",
+  "cancel": "Annuler",
+  "confirmLogout": "Se déconnecter",
+  "easy": "Facile",
+  "medium": "Moyen",
+  "hard": "Difficile",
+  "ultimate": "Ultime",
+  "invalidEmail": "Adresse e-mail invalide",
+  "register": "S'inscrire",
+  "registrationSuccessful": "Inscription réussie",
+  "codeSent": "Code de vérification envoyé",
+  "email": "E-mail",
+  "enterValidEmail": "Veuillez entrer une adresse e-mail valide",
+  "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+  "verificationCode": "Code de vérification",
+  "enterVerificationCode": "Veuillez entrer le code de vérification",
+  "sendVerificationCode": "Envoyer le code",
+  "agreement": "En vous inscrivant, vous acceptez notre ",
+  "createPost": "Créer une publication",
+  "publish": "Publier",
+  "title": "Titre",
+  "content": "Contenu",
+  "deletePost": "Supprimer la publication",
+  "deletePostConfirmation": "Êtes-vous sûr de vouloir supprimer cette publication ?",
+  "delete": "Supprimer",
+  "comments": "Commentaires",
+  "privacyPolicyContent": "La présente Politique de confidentialité décrit nos politiques et procédures relatives à la collecte, l'utilisation et la divulgation de vos informations lorsque vous utilisez le Service et vous informe de vos droits en matière de confidentialité et de la manière dont la loi vous protège. Nous utilisons vos données personnelles pour fournir et améliorer le Service. En utilisant le Service, vous acceptez la collecte et l'utilisation des informations conformément à la présente Politique de confidentialité.\n\n**Collecte et utilisation des informations**\n\n**Types de données collectées**\n*   **Données personnelles :** Lors de l'utilisation de notre Service, nous pouvons vous demander de nous fournir certaines informations personnellement identifiables qui peuvent être utilisées pour vous contacter ou vous identifier. Les informations personnellement identifiables peuvent inclure, mais ne sont pas limitées à : adresse e-mail, nom d'utilisateur et photo de profil.\n*   **Données d'utilisation :** Les données d'utilisation sont collectées automatiquement lors de l'utilisation du Service. Cela peut inclure des informations telles que l'adresse IP de votre appareil, le type de navigateur, la version du navigateur, les pages de notre Service que vous visitez, la date et l'heure de votre visite, le temps passé sur ces pages, les identifiants d'appareil uniques et autres données de diagnostic.\n*   **Contenu généré par l'utilisateur :** Nous collectons le contenu que vous créez sur notre Service, y compris les vidéos et images que vous téléchargez, les commentaires que vous publiez, les likes et les favoris.\n\n**Utilisation de vos données personnelles**\nLa Société peut utiliser les données personnelles à以下es fins :\n*   Pour fournir et maintenir notre Service, y compris pour surveiller l'utilisation de notre Service.\n*   Pour gérer votre Compte : pour gérer votre inscription en tant qu'utilisateur du Service.\n*   Pour vous contacter : Pour vous contacter par e-mail concernant des mises à jour ou des communications informatives relatives aux fonctionnalités, produits ou services contractés.\n*   Pour vous fournir des nouvelles, des offres spéciales et des informations générales sur autres biens, services et événements que nous proposons.\n*   Pour gérer vos demandes : Pour traiter et gérer vos demandes auprès de nous.\n\n**Divulgation de vos informations**\nNous ne vendons pas vos informations personnelles. Nous pouvons partager vos informations avec des prestataires de services tiers qui effectuent des services en notre nom, tels que les services d'hébergement et l'analyse.",
+  "introduction": "Introduction",
+  "replyingTo": "Répondre à {username}",
+  "@replyingTo": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "postYourComment": "Publier votre commentaire",
+  "beTheFirstToComment": "Soyez le premier à commenter",
+  "viewAllReplies": "Voir toutes les {count} réponses",
+  "@viewAllReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentDetails": "{count} réponses",
+  "@commentDetails": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addAComment": "Ajouter un commentaire",
+  "replies": "Réponses",
+  "fileLimitExceeded": "Vous ne pouvez sélectionner que jusqu'à {count} fichiers.",
+  "@fileLimitExceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectPicturesFromAlbum": "Sélectionner des photos depuis l'album",
+  "selectVideoFromAlbum": "Sélectionner une vidéo depuis l'album",
+  "sportVideos": "Vidéos sportives",
+  "resetPassword": "Réinitialiser le mot de passe",
+  "resetYourPassword": "Réinitialiser votre mot de passe",
+  "resetPasswordInstruction": "Veuillez entrer votre adresse e-mail. Nous vous enverrons un code de vérification pour réinitialiser votre mot de passe.",
+  "newPassword": "Nouveau mot de passe",
+  "confirmNewPassword": "Confirmer le nouveau mot de passe",
+  "passwordsDoNotMatch": "Les deux mots de passe ne correspondent pas",
+  "confirmReset": "Confirmer la réinitialisation",
+  "passwordResetSuccessLogin": "Le mot de passe a été réinitialisé. Veuillez vous connecter.",
+  "usernameAndEmailMismatch": "Le nom d'utilisateur et l'e-mail ne correspondent pas",
+  "noRepliesYet": "Aucune réponse pour l'instant.",
+  "invitationCode": "Code d'invitation",
+  "incorrectInvitationCode": "Code d'invitation incorrect",
+  "pleaseRequestVerificationCodeFirst": "Veuillez d'abord demander le code de vérification",
+  "invalidVerificationCode": "Code de vérification invalide.",
+  "videoLoadError": "Impossible de charger la vidéo"
+}

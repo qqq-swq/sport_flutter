@@ -46,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _checkInvitationCode() {
-    final isCorrect = _invitationCodeController.text == 'ABCDEFG';
+    final isCorrect = _invitationCodeController.text == 'JYKJ2025';
     if (isCorrect != _isInvitationCodeCorrect) {
       setState(() {
         _isInvitationCodeCorrect = isCorrect;
@@ -260,7 +260,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               obscureText: true,
                               validator: (value) {
-                                if (value != 'ABCDEFG') {
+                                if (value != 'JYKJ2025') {
                                   return l10n.incorrectInvitationCode;
                                 }
                                 return null;

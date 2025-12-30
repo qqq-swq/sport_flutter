@@ -1,0 +1,142 @@
+{
+  "appTitle": "Sport Flutter",
+  "upNext": "Nächste",
+  "videoViews": "{count, plural, =0{Keine Aufrufe} =1{1 Aufruf} other{{count} Aufrufe}} • {date}",
+  "@videoViews": {
+    "placeholders": {
+      "count": {},
+      "date": {}
+    }
+  },
+  "daysAgo": "{count, plural, =0{Heute} =1{Vor 1 Tag} other{Vor {count} Tagen}}",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "weeksAgo": "{count, plural, =0{Diese Woche} =1{Vor 1 Woche} other{Vor {count} Wochen}}",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "hoursAgo": "{count, plural, =0{Gerade eben} =1{Vor 1 Stunde} other{Vor {count} Stunden}}",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "minutesAgo": "{count, plural, =0{Gerade eben} =1{Vor 1 Minute} other{Vor {count} Minuten}}",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "justNow": "Gerade eben",
+  "showMore": "Mehr anzeigen",
+  "showLess": "Weniger anzeigen",
+  "dislike": "Nicht mögen",
+  "favorite": "Favorit",
+  "tenThousand": "Tsd.",
+  "home": "Startseite",
+  "community": "Community",
+  "profile": "Profil",
+  "login": "Anmelden",
+  "invalidUsernameOrPassword": "Ungültiger Benutzername oder Passwort",
+  "username": "Benutzername",
+  "enterUsername": "Bitte geben Sie Ihren Benutzernamen ein",
+  "password": "Passwort",
+  "enterPassword": "Bitte geben Sie Ihr Passwort ein",
+  "dontHaveAnAccount": "Kein Konto? Registrieren",
+  "forgotPassword": "Passwort vergessen?",
+  "myProfile": "Mein Profil",
+  "privacyPolicy": "Datenschutzrichtlinie",
+  "myPosts": "Meine Beiträge",
+  "myFavorites": "Meine Favoriten",
+  "language": "Sprache",
+  "editProfile": "Profil bearbeiten",
+  "selectLanguage": "Sprache auswählen",
+  "logout": "Abmelden",
+  "logoutConfirmation": "Möchten Sie sich wirklich abmelden?",
+  "cancel": "Abbrechen",
+  "confirmLogout": "Abmelden",
+  "easy": "Einfach",
+  "medium": "Mittel",
+  "hard": "Schwer",
+  "ultimate": "Ultimativ",
+  "invalidEmail": "Ungültige E-Mail-Adresse",
+  "register": "Registrieren",
+  "registrationSuccessful": "Registrierung erfolgreich",
+  "codeSent": "Verifizierungscode gesendet",
+  "email": "E-Mail",
+  "enterValidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+  "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein",
+  "verificationCode": "Verifizierungscode",
+  "enterVerificationCode": "Bitte geben Sie den Verifizierungscode ein",
+  "sendVerificationCode": "Code senden",
+  "agreement": "Mit der Registrierung stimmen Sie unserer ",
+  "createPost": "Beitrag erstellen",
+  "publish": "Veröffentlichen",
+  "title": "Titel",
+  "content": "Inhalt",
+  "deletePost": "Beitrag löschen",
+  "deletePostConfirmation": "Möchten Sie diesen Beitrag wirklich löschen?",
+  "delete": "Löschen",
+  "comments": "Kommentare",
+  "privacyPolicyContent": "Diese Datenschutzrichtlinie beschreibt unsere Richtlinien und Verfahren zum Sammeln, Verwenden und Weitergeben Ihrer Informationen, wenn Sie den Dienst nutzen, und informiert Sie über Ihre Privatsphäre Rechte und wie das Gesetz Sie schützt. Wir verwenden Ihre personenbezogenen Daten, um den Dienst bereitzustellen und zu verbessern. Durch die Nutzung des Dienstes stimmen Sie der Sammlung und Verwendung von Informationen entsprechend dieser Datenschutzrichtlinie zu.\n\n**Sammlung und Verwendung von Informationen**\n\n**Arten der erfassten Daten**\n*   **Personenbezogene Daten:** Bei der Nutzung unseres Dienstes können wir Sie bitten, uns bestimmte personenbezogene Informationen zur Verfügung zu stellen, mit denen Sie kontaktiert oder identifiziert werden können. Personenbezogene Informationen können unter anderem Folgendes umfassen: E-Mail-Adresse, Benutzername und Profilbild.\n*   **Nutzungsdaten:** Nutzungsdaten werden automatisch bei der Nutzung des Dienstes erfasst. Dies kann Informationen wie die Internetprotokolladresse (z. B. IP-Adresse) Ihres Geräts, den Browsertyp, die Browserversion, die Seiten unseres Dienstes, die Sie besuchen, das Datum und die Uhrzeit Ihres Besuchs, die auf diesen Seiten verbrachte Zeit, eindeutige Geräteidentifikatoren und andere Diagnosedaten umfassen.\n*   **Von Benutzern erzeugte Inhalte:** Wir erfassen die Inhalte, die Sie auf unserem Dienst erstellen, einschließlich Videos und Bildern, die Sie hochladen, Kommentaren, die Sie posten, Likes und Favoriten.\n\n**Verwendung Ihrer personenbezogenen Daten**\nDas Unternehmen kann personenbezogene Daten für folgende Zwecke verwenden:\n*   Um unseren Dienst bereitzustellen und zu warten, einschließlich der Überwachung der Nutzung unseres Dienstes.\n*   Um Ihr Konto zu verwalten: Um Ihre Registrierung als Benutzer des Dienstes zu verwalten.\n*   Um Sie zu kontaktieren: Um Sie per E-Mail über Updates oder informative Mitteilungen im Zusammenhang mit den Funktionen, Produkten oder abgeschlossenen Dienstleistungen zu informieren.\n*   Um Ihnen Nachrichten, Sonderangebote und allgemeine Informationen zu anderen Waren, Dienstleistungen und Veranstaltungen zukommen zu lassen, die wir anbieten.\n*   Um Ihre Anfragen zu bearbeiten: Um Ihre Anfragen an uns entgegenzunehmen und zu bearbeiten.\n\n**Weitergabe Ihrer Informationen**\nWir verkaufen Ihre personenbezogenen Informationen nicht. Wir können Ihre Informationen an Drittanbieter weitergeben, die im Namen unserer Firma Dienstleistungen erbringen, wie z. B. Hosting-Dienstleistungen und Analysen.",
+  "introduction": "Einführung",
+  "replyingTo": "Antwort an {username}",
+  "@replyingTo": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "postYourComment": "Kommentar posten",
+  "beTheFirstToComment": "Sei der Erste, der kommentiert",
+  "viewAllReplies": "Alle {count} Antworten anzeigen",
+  "@viewAllReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commentDetails": "{count} Antworten",
+  "@commentDetails": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addAComment": "Kommentar hinzufügen",
+  "replies": "Antworten",
+  "fileLimitExceeded": "Sie können maximal {count} Dateien auswählen.",
+  "@fileLimitExceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectPicturesFromAlbum": "Bilder aus Album auswählen",
+  "selectVideoFromAlbum": "Video aus Album auswählen",
+  "sportVideos": "Sportvideos",
+  "resetPassword": "Passwort zurücksetzen",
+  "resetYourPassword": "Passwort zurücksetzen",
+  "resetPasswordInstruction": "Bitte geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Verifizierungscode, um Ihr Passwort zurückzusetzen.",
+  "newPassword": "Neues Passwort",
+  "confirmNewPassword": "Neues Passwort bestätigen",
+  "passwordsDoNotMatch": "Die beiden Passwörter stimmen nicht überein",
+  "confirmReset": "Zurücksetzung bestätigen",
+  "passwordResetSuccessLogin": "Passwort wurde zurückgesetzt. Bitte melden Sie sich an.",
+  "usernameAndEmailMismatch": "Benutzername und E-Mail stimmen nicht überein",
+  "noRepliesYet": "Noch keine Antworten.",
+  "invitationCode": "Einladungscode",
+  "incorrectInvitationCode": "Falscher Einladungscode",
+  "pleaseRequestVerificationCodeFirst": "Bitte fordern Sie zuerst den Verifizierungscode an",
+  "invalidVerificationCode": "Ungültiger Verifizierungscode.",
+  "videoLoadError": "Video konnte nicht geladen werden"
+}

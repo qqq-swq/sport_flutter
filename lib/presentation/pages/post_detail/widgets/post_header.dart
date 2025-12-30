@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sport_flutter/data/cache/video_cache_manager.dart';
 import 'package:sport_flutter/domain/entities/community_post.dart';
+import 'package:sport_flutter/services/translation_service.dart';
 import 'package:video_player/video_player.dart';
 import 'package:iconsax/iconsax.dart';
 import './media_gallery.dart';
@@ -138,6 +140,7 @@ class _PostHeaderState extends State<PostHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(8.0, 16.0, 8.0, 0),
       child: Column(
@@ -174,12 +177,69 @@ class _PostHeaderState extends State<PostHeader> {
             ],
           ),
           const SizedBox(height: 12),
-          Text(widget.post.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+          _TranslatedText(
+            key: ValueKey('title_${widget.post.id}_${locale.languageCode}'),
+            text: widget.post.title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold) ?? const TextStyle(),
+          ),
           const SizedBox(height: 8),
-          Text(widget.post.content, style: Theme.of(context).textTheme.bodyLarge),
+          _TranslatedText(
+            key: ValueKey('content_${widget.post.id}_${locale.languageCode}'),
+            text: widget.post.content,
+            style: Theme.of(context).textTheme.bodyLarge ?? const TextStyle(),
+          ),
           const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+}
+
+// A widget that translates the given text and displays it.
+class _TranslatedText extends StatefulWidget {
+  final String text;
+  final TextStyle style;
+
+  const _TranslatedText({super.key, required this.text, required this.style});
+
+  @override
+  State<_TranslatedText> createState() => _TranslatedTextState();
+}
+
+class _TranslatedTextState extends State<_TranslatedText> {
+  String? _translatedText;
+
+  @override
+  void initState() {
+    super.initState();
+    _translateText();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TranslatedText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.text != oldWidget.text) {
+      _translateText();
+    }
+  }
+
+  Future<void> _translateText() async {
+    if (!mounted) return;
+    final locale = Localizations.localeOf(context);
+    final translationService = context.read<TranslationService>();
+    final translated = await translationService.translate(widget.text, locale.languageCode);
+    if (mounted) {
+      setState(() {
+        _translatedText = translated;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _translatedText ?? widget.text,
+      style: widget.style,
     );
   }
 }

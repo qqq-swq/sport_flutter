@@ -4,9 +4,9 @@ import 'package:sport_flutter/common/time_formatter.dart';
 import 'package:sport_flutter/domain/entities/post_comment.dart';
 import 'package:sport_flutter/l10n/app_localizations.dart';
 import 'package:sport_flutter/presentation/bloc/auth_bloc.dart';
-import 'package:sport_flutter/presentation/bloc/locale_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/post_comment_bloc.dart';
 import 'package:sport_flutter/presentation/pages/post_detail/widgets/reply_sheet.dart';
+import 'package:sport_flutter/services/translation_service.dart';
 import 'package:iconsax/iconsax.dart';
 
 class CommentItem extends StatelessWidget {
@@ -47,6 +47,8 @@ class CommentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+
     return Padding(
       padding: EdgeInsets.fromLTRB(isReply ? 40.0 : 16.0, 8.0, 16.0, 8.0),
       child: Column(
@@ -69,7 +71,11 @@ class CommentItem extends StatelessWidget {
                   children: [
                     Text(comment.username, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
                     const SizedBox(height: 4),
-                    Text(comment.content),
+                    _TranslatedText(
+                      key: ValueKey('comment_${comment.id}_${locale.languageCode}'),
+                      text: comment.content,
+                      style: Theme.of(context).textTheme.bodyMedium ?? const TextStyle(),
+                    ),
                   ],
                 ),
               ),
@@ -128,6 +134,54 @@ class CommentItem extends StatelessWidget {
             onPressed: () => bloc.add(DeleteComment(comment.id)),
           ),
       ],
+    );
+  }
+}
+
+class _TranslatedText extends StatefulWidget {
+  final String text;
+  final TextStyle style;
+
+  const _TranslatedText({super.key, required this.text, required this.style});
+
+  @override
+  State<_TranslatedText> createState() => _TranslatedTextState();
+}
+
+class _TranslatedTextState extends State<_TranslatedText> {
+  String? _translatedText;
+
+  @override
+  void initState() {
+    super.initState();
+    _translateText();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TranslatedText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.text != oldWidget.text) {
+      _translateText();
+    }
+  }
+
+  Future<void> _translateText() async {
+    if (!mounted) return;
+    final locale = Localizations.localeOf(context);
+    final translationService = context.read<TranslationService>();
+    final translated = await translationService.translate(widget.text, locale.languageCode);
+    if (mounted) {
+      setState(() {
+        _translatedText = translated;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _translatedText ?? widget.text,
+      style: widget.style,
     );
   }
 }

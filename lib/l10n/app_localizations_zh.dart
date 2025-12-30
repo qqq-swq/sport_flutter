@@ -242,7 +242,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get postYourComment => '发表您的评论';
 
   @override
-  String get beTheFirstToComment => '成为第一个发表评论的人';
+  String get beTheFirstToComment => '还没有人发言, 快来抢个沙发吧!';
 
   @override
   String viewAllReplies(int count) {
@@ -318,4 +318,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get videoLoadError => '无法加载视频';
+
+  @override
+  String get noPostsYet => '还没有人发言，快来抢个沙发吧！';
 }

@@ -11,6 +11,7 @@ import 'package:sport_flutter/presentation/bloc/video_bloc.dart';
 import 'package:sport_flutter/presentation/bloc/video_event.dart';
 import 'package:sport_flutter/presentation/bloc/video_state.dart';
 import 'package:sport_flutter/presentation/pages/video_detail_page.dart';
+import 'package:sport_flutter/presentation/widgets/translated_text.dart';
 
 class VideoGridPage extends StatefulWidget {
   final String title;
@@ -98,6 +99,8 @@ class _GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -134,10 +137,9 @@ class _GridItem extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                video.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: TranslatedText(
+                key: ValueKey('${video.title}_${locale.languageCode}'),
+                text: video.title,
                 style: const TextStyle(fontSize: 14),
               ),
             ),

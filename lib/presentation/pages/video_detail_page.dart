@@ -1,9 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +22,7 @@ import 'package:sport_flutter/presentation/bloc/video_state.dart';
 import 'package:sport_flutter/presentation/widgets/comment_widgets.dart';
 import 'package:sport_flutter/presentation/widgets/video_intro_panel.dart';
 import 'package:sport_flutter/presentation/widgets/video_player_widget.dart';
+import 'package:sport_flutter/services/translation_service.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoDetailPage extends StatefulWidget {
@@ -51,15 +50,9 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   bool _viewRecorded = false;
   bool _isInteracting = false;
   bool _isLoading = true;
+  bool _didInit = false;
 
   final String _apiBaseUrl = AuthRemoteDataSourceImpl.getBaseApiUrl();
-
-  // Baidu Translate Credentials
-  final String _baiduAppId = '20230522001685444';
-  final String _baiduSecretKey = 'qcEQl156_3sdFvOXTLup';
-
-  // In-memory cache for translations
-  final Map<String, String> _translationCache = {};
 
   String _translatedTitle = "";
   String _translatedDesc = "";
@@ -68,6 +61,8 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   void initState() {
     super.initState();
     _currentVideo = widget.video;
+    _translatedTitle = _currentVideo.title;
+    _translatedDesc = _currentVideo.description ?? '';
     _commentBloc = CommentBloc();
     _initializeVideoPlayerFuture = _initializePlayer(_currentVideo.videoUrl);
     
@@ -77,7 +72,10 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _fetchFullVideoDetails();
+    if (!_didInit) {
+      _fetchFullVideoDetails();
+      _didInit = true;
+    }
   }
 
   @override
@@ -132,40 +130,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     }
   }
 
-  Future<String> _manualBaiduTranslate(String query, String toLang) async {
-    final cacheKey = '$toLang:$query';
-    if (_translationCache.containsKey(cacheKey)) {
-      return _translationCache[cacheKey]!;
-    }
-
-    const String baseUrl = 'https://fanyi-api.baidu.com/api/trans/vip/translate';
-    final String salt = Random().nextInt(100000).toString();
-    final String sign = md5.convert(utf8.encode('$_baiduAppId$query$salt$_baiduSecretKey')).toString();
-
-    final uri = Uri.parse(baseUrl).replace(queryParameters: {
-      'q': query,
-      'from': 'auto',
-      'to': toLang,
-      'appid': _baiduAppId,
-      'salt': salt,
-      'sign': sign,
-    });
-
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-      if (body['trans_result'] != null && body['trans_result'].isNotEmpty) {
-        final translatedText = body['trans_result'][0]['dst'];
-        _translationCache[cacheKey] = translatedText;
-        return translatedText;
-      } else if (body['error_code'] != null) {
-        throw Exception('Baidu API Error: ${body['error_msg']} (code: ${body['error_code']})');
-      }
-    }
-    throw Exception('Failed to translate text.');
-  }
-
   Future<void> _translateContent(String toLang) async {
     if (toLang == 'zh') {
       if (mounted) {
@@ -178,8 +142,11 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
     }
 
     try {
-      final titleTranslation = _manualBaiduTranslate(_currentVideo.title, toLang);
-      final descTranslation = _manualBaiduTranslate(_currentVideo.description ?? '', toLang);
+      final translationService = context.read<TranslationService>();
+      final titleTranslation = translationService.translate(_currentVideo.title, toLang);
+      final descTranslation = _currentVideo.description?.isNotEmpty == true
+          ? translationService.translate(_currentVideo.description!, toLang)
+          : Future.value(_currentVideo.description ?? '');
 
       final results = await Future.wait([titleTranslation, descTranslation]);
 
@@ -189,7 +156,6 @@ class _VideoDetailPageState extends State<VideoDetailPage> {
           _translatedDesc = results[1];
         });
       }
-      
     } catch (e) {
       debugPrint("翻译失败：$e");
       if (mounted) {

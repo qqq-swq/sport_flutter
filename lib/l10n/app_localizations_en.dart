@@ -323,4 +323,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get videoLoadError => 'Unable to load video';
+
+  @override
+  String get noPostsYet => 'No posts yet. Be the first to post!';
 }
