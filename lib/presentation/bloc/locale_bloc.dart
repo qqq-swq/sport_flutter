@@ -30,7 +30,7 @@ class LocaleState extends Equatable {
 
 // BLoC
 class LocaleBloc extends Bloc<LocaleEvent, LocaleState> {
-  LocaleBloc() : super(const LocaleState(Locale('zh'))) { // Default to Chinese
+  LocaleBloc() : super(const LocaleState(Locale('en'))) { // Default to Chinese
     on<LoadLocale>(_onLoadLocale);
     on<ChangeLocale>(_onChangeLocale);
   }
