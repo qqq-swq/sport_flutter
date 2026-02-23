@@ -9,7 +9,7 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get appTitle => 'Deporte Flutter';
+  String get appTitle => 'HYKOIUU';
 
   @override
   String get upNext => 'Siguiente';
