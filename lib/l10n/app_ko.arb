@@ -1,5 +1,5 @@
 {
-  "appTitle": "스포츠 플러터",
+  "appTitle": "HYKOIUU",
   "upNext": "다음",
   "videoViews": "{count, plural, =0{조회수 없음} =1{조회수 1회} other{조회수 {count}회}} • {date}",
   "@videoViews": {
