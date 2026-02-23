@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => '运动 Flutter';
+  String get appTitle => 'HYKOIUU';
 
   @override
   String get upNext => '接下来播放';
