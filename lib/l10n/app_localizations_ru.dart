@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Sport Flutter';
+  String get appTitle => 'HYKOIUU';
 
   @override
   String get upNext => 'Далее';
