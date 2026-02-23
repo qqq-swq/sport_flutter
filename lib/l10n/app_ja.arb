@@ -1,5 +1,5 @@
 {
-  "appTitle": "スポーツフラッター",
+  "appTitle": "HYKOIUU",
   "upNext": "次へ",
   "videoViews": "{count, plural, =0{閲覧数なし} =1{閲覧数1件} other{閲覧数{count}件}} • {date}",
   "@videoViews": {
