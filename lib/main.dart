@@ -227,8 +227,9 @@ class MyApp extends StatelessWidget {
         );
 
         return MaterialApp(
-          title: '体育应用',
+          title: 'HYKOIUU',
           locale: localeState.locale,
+          debugShowCheckedModeBanner: false,
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
