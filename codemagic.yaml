@@ -1,8 +1,8 @@
 workflows:
-  ios-dual-build:
-    name: iOS 双产物构建（上架IPA + Appetize模拟器包）
+  ios-simulator-only:
+    name: iOS 仅生成Appetize模拟器包（无需证书）
     instance_type: mac_mini_m1
-    max_build_duration: 60
+    max_build_duration: 30
     environment:
       flutter: stable
       xcode: latest
@@ -12,16 +12,13 @@ workflows:
         script: flutter pub get
       - name: 安装CocoaPods
         script: cd ios && pod install && cd ..
-      # 构建上架用IPA，使用真实的入口文件 lib/main.dart
-      - name: 构建上架IPA
-        script: flutter build ipa --release -t lib/main.dart
-      # 构建Appetize用模拟器包
-      - name: 构建模拟器包并导出
+      # 只构建模拟器包，跳过需要签名的IPA
+      - name: 构建Appetize模拟器包并导出
         script: |
-          flutter build ios --simulator --debug -t lib/main.dart
+          # 模拟器构建无需代码签名，直接编译
+          flutter build ios --simulator --debug -t lib/main.dart --no-code-sign
           cd build/ios/Debug-iphonesimulator
           zip -r Runner.app.zip Runner.app
           mv Runner.app.zip $CM_EXPORT_DIR/
     artifacts:
-      - build/ios/ipa/*.ipa
       - $CM_EXPORT_DIR/Runner.app.zip
