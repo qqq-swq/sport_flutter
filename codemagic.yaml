@@ -1,0 +1,33 @@
+workflows:
+  ios-dual-build:
+    name: iOS 双产物构建（上架IPA + Appetize模拟器包）
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      # 1. 安装基础依赖
+      - name: 安装Flutter依赖
+        script: flutter pub get
+      # 2. 安装CocoaPods依赖（iOS必须）
+      - name: 安装CocoaPods
+        script: cd ios && pod install && cd ..
+      # 3. 构建App Store上架用的Release IPA（匹配你的Flavor和Target）
+      - name: 构建上架IPA
+        script: flutter build ipa --release --flavor ios-production -t lib/main_prod.dart
+      # 4. 构建Appetize用的模拟器包并压缩
+      - name: 构建模拟器包并导出
+        script: |
+          flutter build ios --simulator --debug --flavor ios-production -t lib/main_prod.dart
+          # 进入模拟器包目录
+          cd build/ios/Debug-iphonesimulator
+          # 压缩Runner.app（必须保留原名称，Appetize才能识别）
+          zip -r Runner.app.zip Runner.app
+          # 移动到导出目录，构建后可直接下载
+          mv Runner.app.zip $CM_EXPORT_DIR/
+    # 配置产物导出，确保IPA和模拟器包都能下载
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - $CM_EXPORT_DIR/Runner.app.zip
