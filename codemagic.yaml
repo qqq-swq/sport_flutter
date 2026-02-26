@@ -1,6 +1,6 @@
 workflows:
   ios-simulator-only:
-    name: iOS 仅生成Appetize模拟器包（无需证书）
+    name: iOS 仅生成Appetize模拟器包（无证书版）
     instance_type: mac_mini_m1
     max_build_duration: 30
     environment:
@@ -8,17 +8,33 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
+      - name: 升级Flutter（确保版本兼容）
+        script: flutter upgrade
       - name: 安装Flutter依赖
         script: flutter pub get
-      - name: 安装CocoaPods
-        script: cd ios && pod install && cd ..
-      # 只构建模拟器包，跳过需要签名的IPA
-      - name: 构建Appetize模拟器包并导出
+      - name: 安装CocoaPods依赖
         script: |
-          # 模拟器构建无需代码签名，直接编译
-          flutter build ios --simulator --debug -t lib/main.dart --no-code-sign
-          cd build/ios/Debug-iphonesimulator
-          zip -r Runner.app.zip Runner.app
-          mv Runner.app.zip $CM_EXPORT_DIR/
+          cd ios
+          pod repo update
+          pod install --repo-update
+          cd ..
+      - name: 清理旧构建产物（避免缓存问题）
+        script: flutter clean
+      - name: 构建Appetize模拟器包
+        script: |
+          # 核心命令：仅构建模拟器包，无多余参数
+          flutter build ios --simulator --debug -t lib/main.dart
+          # 检查目录是否存在，避免报错
+          if [ -d "build/ios/Debug-iphonesimulator" ]; then
+            cd build/ios/Debug-iphonesimulator
+            # 强制压缩，忽略空文件警告
+            zip -r -q Runner.app.zip Runner.app
+            mv Runner.app.zip $CM_EXPORT_DIR/
+            echo "模拟器包生成成功，已导出到 $CM_EXPORT_DIR"
+          else
+            echo "错误：模拟器包目录不存在，打印构建目录排查："
+            ls -la build/ios/
+            exit 1
+          fi
     artifacts:
       - $CM_EXPORT_DIR/Runner.app.zip
